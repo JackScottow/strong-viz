@@ -1,8 +1,8 @@
-# Strong Workout Data Visualizer
+# Strong-Viz
 
-A modern web application for visualizing and analyzing your workout data from the Strong App. Get insights into your exercise progression, workout history, and training volume with beautiful interactive charts and a clean interface.
+A modern web application for visualizing and analyzing your workout data from the Strong App. Track your progress, analyze your performance, and gain insights into your training with beautiful interactive charts.
 
-![Strong Workout Data Visualizer](screenshot.png)
+![Strong-Viz](screenshot.png)
 
 ## Features
 
@@ -10,7 +10,7 @@ A modern web application for visualizing and analyzing your workout data from th
 
 - Track progression of individual exercises over time
 - View weight progression and volume trends with interactive charts
-- See max weight, max reps, and total sets for each exercise
+- See max weight, max volume, and total sets for each exercise
 - Detailed set history with weights and reps
 - Click on workout dates to see full workout details
 
@@ -26,7 +26,7 @@ A modern web application for visualizing and analyzing your workout data from th
 ### Using Your Strong App Data
 
 1. Export your workout data from the Strong App as a CSV file (Settings cog > General > Export data)
-2. Open the application in your browser
+2. Open Strong-Viz in your browser
 3. Click the upload area and select your CSV file
 4. Your workout data will be automatically processed and displayed
 

@@ -13,7 +13,12 @@ export interface ExerciseData {
   [exerciseName: string]: {
     sets: ExerciseSet[];
     maxWeight: number;
-    maxReps: number;
+    maxWeightReps: number;
+    maxWeightDate: string;
+    maxVolume: number;
+    maxVolumeWeight: number;
+    maxVolumeReps: number;
+    maxVolumeDate: string;
     lastUsed: Date;
   };
 }

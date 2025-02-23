@@ -96,53 +96,58 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
   }, [workoutData, selectedDate]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2">
+    <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2 bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-700">
         {workoutData.map((workout) => (
           <button
             key={workout.date}
             onClick={() => onDateChange(new Date(workout.date))}
-            className={`w-full p-3 rounded-lg border transition-colors text-left flex items-center justify-between
+            className={`w-full min-h-[5.5rem] p-3 sm:p-4 rounded-lg border transition-colors text-left
               ${selectedWorkout?.date === workout.date ? "bg-blue-500/20 border-blue-500 text-blue-400" : "bg-gray-700 border-gray-600 text-gray-200 hover:border-blue-500 hover:text-blue-400"}`}>
-            <div className="flex items-center gap-4">
-              <div className="font-semibold">{formatDate(workout.date)}</div>
-              <div className="text-sm opacity-80">{workout.name}</div>
+            <div className="h-full flex flex-col justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                  <div className="font-semibold text-sm sm:text-base">{formatDate(workout.date)}</div>
+                  <div className="text-sm opacity-80">{workout.name}</div>
+                </div>
+                <div className="text-sm opacity-60">{Object.keys(workout.exercises).length} exercises</div>
+              </div>
+              <div className="text-sm text-gray-400 min-h-[2.5rem] line-clamp-2">{Object.keys(workout.exercises).join(" • ")}</div>
             </div>
-            <div className="text-sm opacity-60">{Object.keys(workout.exercises).length} exercises</div>
           </button>
         ))}
       </div>
 
       {selectedWorkout && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-white">{formatDate(selectedWorkout.date)}</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-              <h3 className="text-lg font-semibold mb-2 text-gray-200">Total Volume</h3>
-              <p className="text-2xl font-bold text-blue-400">{Math.round(selectedWorkout.totalVolume)} kg</p>
+        <div className="mt-8 sm:mt-12 space-y-4 sm:space-y-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">{formatDate(selectedWorkout.date)}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Total Volume</h3>
+              <p className="text-xl sm:text-2xl font-bold text-blue-400">{Math.round(selectedWorkout.totalVolume)} kg</p>
             </div>
-            <div className="p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-              <h3 className="text-lg font-semibold mb-2 text-gray-200">Exercises</h3>
-              <p className="text-2xl font-bold text-blue-400">{Object.keys(selectedWorkout.exercises).length}</p>
+            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Exercises</h3>
+              <p className="text-xl sm:text-2xl font-bold text-blue-400">{Object.keys(selectedWorkout.exercises).length}</p>
             </div>
-            <div className="p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-              <h3 className="text-lg font-semibold mb-2 text-gray-200">Duration</h3>
-              <p className="text-2xl font-bold text-blue-400">{selectedWorkout.duration}</p>
+            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Duration</h3>
+              <p className="text-xl sm:text-2xl font-bold text-blue-400">{selectedWorkout.duration}</p>
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {Object.entries(selectedWorkout.exercises).map(([exerciseName, sets]) => (
               <div key={exerciseName} className="bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-                <div onClick={() => onExerciseClick(exerciseName)} className="px-4 py-3 bg-gray-750 border-b border-gray-600 rounded-t-lg cursor-pointer hover:bg-gray-700 transition-colors group">
-                  <h4 className="font-semibold text-white group-hover:text-blue-400">{exerciseName}</h4>
+                <div onClick={() => onExerciseClick(exerciseName)} className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-750 border-b border-gray-600 rounded-t-lg cursor-pointer hover:bg-gray-700 transition-colors group">
+                  <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-blue-400">{exerciseName}</h4>
                 </div>
-                <div className="p-4">
-                  <div className="grid grid-cols-4 gap-4">
+                <div className="p-2 sm:p-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                     {sets.map((set, index) => (
-                      <div key={index} className="p-3 bg-gray-800 rounded-lg">
-                        <div className="text-sm text-gray-400">Set {set.setNumber}</div>
-                        <div className="font-semibold text-white">
+                      <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg">
+                        <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
+                        <div className="font-semibold text-sm sm:text-base text-white">
                           {set.weight} kg × {set.reps}
                         </div>
                       </div>
