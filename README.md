@@ -23,41 +23,6 @@ A modern web application for visualizing and analyzing your workout data from th
   - Workout duration
 - Click on exercises to see their complete history and progression
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 16.x or higher
-- npm or yarn
-- Strong App export file (CSV format)
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/strong-viz.git
-cd strong-viz
-```
-
-2. Install dependencies:
-
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Start the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
 ### Using Your Strong App Data
 
 1. Export your workout data from the Strong App as a CSV file
