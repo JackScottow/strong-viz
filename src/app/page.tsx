@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CsvUploader from "@/components/CsvUploader";
 import ExerciseAnalyzer from "@/components/ExerciseAnalyzer";
 import WorkoutAnalyzer from "@/components/WorkoutAnalyzer";
@@ -13,6 +13,36 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("exercise");
   const [selectedWorkoutDate, setSelectedWorkoutDate] = useState<Date | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<string>("");
+
+  // Set default selections when data is loaded
+  useEffect(() => {
+    if (data.length > 0) {
+      // Find the most recent workout date
+      const sortedDates = [...new Set(data.map((row) => row.Date))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+      if (sortedDates.length > 0) {
+        const mostRecentDate = new Date(sortedDates[0]);
+        mostRecentDate.setHours(0, 0, 0, 0);
+        setSelectedWorkoutDate(mostRecentDate);
+      }
+
+      // Find the most recently used exercise
+      const exerciseDates = data.reduce((acc, row) => {
+        const date = new Date(row.Date);
+        const exercise = row["Exercise Name"];
+        if (!acc[exercise] || date > acc[exercise]) {
+          acc[exercise] = date;
+        }
+        return acc;
+      }, {} as Record<string, Date>);
+
+      const mostRecentExercise = Object.entries(exerciseDates).sort(([, a], [, b]) => b.getTime() - a.getTime())[0]?.[0];
+
+      if (mostRecentExercise) {
+        setSelectedExercise(mostRecentExercise);
+      }
+    }
+  }, [data]);
 
   const handleWorkoutClick = (date: string) => {
     // Create date at start of day in local timezone to avoid time-of-day mismatches
