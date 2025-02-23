@@ -1,101 +1,68 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import CsvUploader from "@/components/CsvUploader";
+import ExerciseAnalyzer from "@/components/ExerciseAnalyzer";
+import WorkoutAnalyzer from "@/components/WorkoutAnalyzer";
+
+type Tab = "exercise" | "workout";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [data, setData] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<Tab>("exercise");
+  const [selectedWorkoutDate, setSelectedWorkoutDate] = useState<Date | null>(null);
+  const [selectedExercise, setSelectedExercise] = useState<string>("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleWorkoutClick = (date: string) => {
+    // Create date at start of day in local timezone to avoid time-of-day mismatches
+    const newDate = new Date(date);
+    newDate.setHours(0, 0, 0, 0);
+    setSelectedWorkoutDate(newDate);
+    setActiveTab("workout");
+  };
+
+  const handleExerciseClick = (exerciseName: string) => {
+    setSelectedExercise(exerciseName);
+    setActiveTab("exercise");
+  };
+
+  return (
+    <main className="min-h-screen bg-gray-900">
+      <div className="max-w-6xl mx-auto p-8 space-y-8">
+        <h1 className="text-4xl font-bold text-center text-white">Exercise Data Analyzer</h1>
+
+        <div className="space-y-4 bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+          <h2 className="text-xl font-semibold text-white">Upload your Strong App CSV export</h2>
+          <CsvUploader onDataLoaded={setData} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {data.length > 0 && (
+          <div className="space-y-6">
+            <div className="border-b border-gray-700">
+              <nav className="-mb-px flex space-x-8">
+                <button
+                  onClick={() => setActiveTab("exercise")}
+                  className={`
+                    py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                    ${activeTab === "exercise" ? "border-blue-500 text-blue-400" : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"}
+                  `}>
+                  By Exercise
+                </button>
+                <button
+                  onClick={() => setActiveTab("workout")}
+                  className={`
+                    py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                    ${activeTab === "workout" ? "border-blue-500 text-blue-400" : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"}
+                  `}>
+                  By Workout Date
+                </button>
+              </nav>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700">{activeTab === "exercise" ? <ExerciseAnalyzer data={data} onWorkoutClick={handleWorkoutClick} selectedExercise={selectedExercise} onExerciseSelect={setSelectedExercise} /> : <WorkoutAnalyzer data={data} selectedDate={selectedWorkoutDate} onDateChange={setSelectedWorkoutDate} onExerciseClick={handleExerciseClick} />}</div>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Strong Workout Data Visualizer
+
+A modern web application for visualizing and analyzing your workout data from the Strong App. Get insights into your exercise progression, workout history, and training volume with beautiful interactive charts and a clean interface.
+
+![Strong Workout Data Visualizer](screenshot.png)
+
+## Features
+
+### Exercise Analysis
+
+- Track progression of individual exercises over time
+- View weight progression and volume trends with interactive charts
+- See max weight, max reps, and total sets for each exercise
+- Detailed set history with weights and reps
+- Click on workout dates to see full workout details
+
+### Workout Analysis
+
+- Chronological list of all workouts with exercise counts
+- Detailed workout summaries including:
+  - Total volume lifted
+  - Number of exercises performed
+  - Workout duration
+- Click on exercises to see their complete history and progression
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 16.x or higher
+- npm or yarn
+- Strong App export file (CSV format)
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/strong-viz.git
+cd strong-viz
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Start the development server:
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Using Your Strong App Data
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Export your workout data from the Strong App as a CSV file
+2. Open the application in your browser
+3. Click the upload area and select your CSV file
+4. Your workout data will be automatically processed and displayed
 
-## Learn More
+## Technology Stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js 13+ with App Router
+- React 18
+- TypeScript
+- Tailwind CSS for styling
+- Recharts for data visualization
+- Papa Parse for CSV parsing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Acknowledgments
+
+- Strong App for providing the workout tracking platform
+- Recharts for the excellent charting library
+- All contributors who help improve this project
