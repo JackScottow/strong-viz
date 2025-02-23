@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
+import { StrongCSVRow } from "@/types/exercise";
 
 interface DataVisualizerProps {
-  data: any[];
+  data: StrongCSVRow[];
 }
 
 const DataVisualizer = ({ data }: DataVisualizerProps) => {
