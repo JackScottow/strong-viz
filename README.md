@@ -32,20 +32,11 @@ A modern web application for visualizing and analyzing your workout data from th
 
 ## Technology Stack
 
-- Next.js 13+ with App Router
 - React 18
 - TypeScript
 - Tailwind CSS for styling
 - Recharts for data visualization
 - Papa Parse for CSV parsing
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
