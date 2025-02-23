@@ -69,23 +69,31 @@ export default function Home() {
 
         {data.length > 0 && (
           <div className="space-y-4 sm:space-y-6">
-            <div className="border-b border-gray-700">
-              <nav className="-mb-px flex space-x-4 sm:space-x-8">
+            <div className="bg-gray-800 rounded-lg p-2">
+              <nav className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setActiveTab("exercise")}
                   className={`
-                    py-3 sm:py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                    ${activeTab === "exercise" ? "border-blue-500 text-blue-400" : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"}
+                    py-3 px-4 rounded-lg font-medium text-sm sm:text-base transition-all
+                    flex items-center justify-center gap-2
+                    ${activeTab === "exercise" ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}
                   `}>
-                  By Exercise
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3Z" />
+                  </svg>
+                  Exercise Analysis
                 </button>
                 <button
                   onClick={() => setActiveTab("workout")}
                   className={`
-                    py-3 sm:py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                    ${activeTab === "workout" ? "border-blue-500 text-blue-400" : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"}
+                    py-3 px-4 rounded-lg font-medium text-sm sm:text-base transition-all
+                    flex items-center justify-center gap-2
+                    ${activeTab === "workout" ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}
                   `}>
-                  By Workout Date
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                  </svg>
+                  Workout History
                 </button>
               </nav>
             </div>
