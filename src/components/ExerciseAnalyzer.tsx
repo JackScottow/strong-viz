@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { ExerciseData, ExerciseSet } from "@/types/exercise";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { ExerciseData, ExerciseSet, StrongCSVRow } from "@/types/exercise";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, TooltipProps } from "recharts";
+import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
 interface ExerciseAnalyzerProps {
-  data: any[];
+  data: StrongCSVRow[];
   onWorkoutClick: (date: string) => void;
   selectedExercise: string;
   onExerciseSelect: (exercise: string) => void;
@@ -16,10 +17,10 @@ interface ChartDataPoint {
   sets: ExerciseSet[];
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (!active || !payload || !payload[0]) return null;
 
-  const sets: ExerciseSet[] = payload[0].payload.sets;
+  const sets: ExerciseSet[] = (payload[0].payload as ChartDataPoint).sets;
   // Sort sets by set number to maintain order
   const sortedSets = [...sets].sort((a, b) => a.setNumber - b.setNumber);
 

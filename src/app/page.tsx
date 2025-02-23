@@ -4,11 +4,12 @@ import { useState } from "react";
 import CsvUploader from "@/components/CsvUploader";
 import ExerciseAnalyzer from "@/components/ExerciseAnalyzer";
 import WorkoutAnalyzer from "@/components/WorkoutAnalyzer";
+import { StrongCSVRow } from "@/types/exercise";
 
 type Tab = "exercise" | "workout";
 
 export default function Home() {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<StrongCSVRow[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>("exercise");
   const [selectedWorkoutDate, setSelectedWorkoutDate] = useState<Date | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<string>("");

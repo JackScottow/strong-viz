@@ -22,3 +22,15 @@ export interface ExerciseData {
     lastUsed: Date;
   };
 }
+
+export interface StrongCSVRow {
+  Date: string;
+  "Workout Name": string;
+  "Exercise Name": string;
+  "Set Order": string;
+  Weight: string;
+  "Weight Unit": string;
+  Reps: string;
+  Duration: string;
+  [key: string]: string; // For any additional columns
+}

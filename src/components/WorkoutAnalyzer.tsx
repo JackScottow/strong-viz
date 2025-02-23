@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { ExerciseSet } from "@/types/exercise";
+import { ExerciseSet, StrongCSVRow } from "@/types/exercise";
 
 interface WorkoutAnalyzerProps {
-  data: any[];
+  data: StrongCSVRow[];
   selectedDate: Date | null;
   onDateChange: (date: Date | null) => void;
   onExerciseClick: (exerciseName: string) => void;
