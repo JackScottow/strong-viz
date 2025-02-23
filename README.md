@@ -25,7 +25,7 @@ A modern web application for visualizing and analyzing your workout data from th
 
 ### Using Your Strong App Data
 
-1. Export your workout data from the Strong App as a CSV file (Settings cog > General > Export Data.)
+1. Export your workout data from the Strong App as a CSV file (Settings cog > General > Export data)
 2. Open the application in your browser
 3. Click the upload area and select your CSV file
 4. Your workout data will be automatically processed and displayed
