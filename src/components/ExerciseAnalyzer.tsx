@@ -284,8 +284,36 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
               )}
             </div>
             <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Total Sets</h3>
-              <p className="text-xl sm:text-2xl font-bold text-blue-400">{exerciseData[selectedExercise].sets.length}</p>
+              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Estimated 1RM</h3>
+              {(() => {
+                // Find the set that would give the highest estimated 1RM
+                const maxEstimated1RM = exerciseData[selectedExercise].sets.reduce(
+                  (max, set) => {
+                    if (set.reps > 36) return max; // Brzycki formula becomes unreliable beyond 36 reps
+                    const estimated1RM = set.weight * (36 / (37 - set.reps));
+                    return estimated1RM > max.value ? { value: estimated1RM, set } : max;
+                  },
+                  { value: 0, set: null as ExerciseSet | null }
+                );
+
+                if (!maxEstimated1RM.set) return <p className="text-xl sm:text-2xl font-bold text-blue-400">N/A</p>;
+
+                return (
+                  <>
+                    <p className="text-xl sm:text-2xl font-bold text-blue-400">{Math.round(maxEstimated1RM.value)} kg</p>
+                    <p className="text-sm text-gray-400">
+                      Based on {maxEstimated1RM.set.weight} kg × {maxEstimated1RM.set.reps} reps
+                    </p>
+                    <button onClick={() => onWorkoutClick(maxEstimated1RM.set!.date)} className="text-sm text-gray-400 hover:text-blue-400 transition-colors mt-1">
+                      {new Date(maxEstimated1RM.set.date).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </button>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -341,14 +369,32 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                 </div>
                 <div className="p-2 sm:p-4">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-                    {sets.map((set, index) => (
-                      <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg">
-                        <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
-                        <div className="font-semibold text-sm sm:text-base text-white">
-                          {set.weight} kg × {set.reps}
+                    {sets.map((set, index) => {
+                      const isWeightPR = set.date === exerciseData[selectedExercise].maxWeightDate && set.weight === exerciseData[selectedExercise].maxWeight && set.reps === exerciseData[selectedExercise].maxWeightReps;
+                      const isVolumePR = set.date === exerciseData[selectedExercise].maxVolumeDate && set.weight === exerciseData[selectedExercise].maxVolumeWeight && set.reps === exerciseData[selectedExercise].maxVolumeReps;
+                      return (
+                        <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
+                          <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
+                          <div className="font-semibold text-sm sm:text-base text-white">
+                            {set.weight} kg × {set.reps}
+                          </div>
+                          {(isWeightPR || isVolumePR) && (
+                            <div className="absolute top-1 right-1 flex gap-1">
+                              {isWeightPR && (
+                                <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
+                                  W
+                                </span>
+                              )}
+                              {isVolumePR && (
+                                <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-md" title="Volume PR">
+                                  V
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
