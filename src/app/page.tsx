@@ -93,7 +93,10 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-900">
       <div className="max-w-6xl mx-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
-        <h1 className="text-2xl sm:text-4xl font-bold text-center text-white">Strong-Viz</h1>
+        <div className="text-center space-y-3">
+          <h1 className="text-3xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Strong-Viz</h1>
+          <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto">Upload your Strong App workout data to analyze your progress, track personal records, and gain insights into your training history with beautiful interactive charts.</p>
+        </div>
 
         <div className="space-y-3 sm:space-y-4 bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg border border-gray-700">
           <CsvUploader onDataLoaded={setData} hasData={data.length > 0} />

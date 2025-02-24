@@ -157,6 +157,7 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
 
   return (
     <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
+      <h2 className="text-lg sm:text-xl font-semibold text-white">Select Workout</h2>
       <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2 bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-700">
         {workoutData.map((workout) => (
           <button
