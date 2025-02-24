@@ -96,8 +96,7 @@ export default function Home() {
         <h1 className="text-2xl sm:text-4xl font-bold text-center text-white">Strong-Viz</h1>
 
         <div className="space-y-3 sm:space-y-4 bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg border border-gray-700">
-          <h2 className="text-lg sm:text-xl font-semibold text-white">Upload your Strong App CSV export</h2>
-          <CsvUploader onDataLoaded={setData} />
+          <CsvUploader onDataLoaded={setData} hasData={data.length > 0} />
         </div>
 
         {data.length > 0 && (
