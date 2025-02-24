@@ -162,17 +162,20 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
                           const volume = weight * reps;
                           const date = row["Date"] || "";
 
-                          if (weight > exerciseData.maxWeight) {
-                            exerciseData.maxWeight = weight;
-                            exerciseData.maxWeightReps = reps;
-                            exerciseData.maxWeightDate = date;
-                          }
+                          // Only consider sets with reps > 0 for PRs
+                          if (reps > 0) {
+                            if (weight > exerciseData.maxWeight) {
+                              exerciseData.maxWeight = weight;
+                              exerciseData.maxWeightReps = reps;
+                              exerciseData.maxWeightDate = date;
+                            }
 
-                          if (volume > exerciseData.maxVolume) {
-                            exerciseData.maxVolume = volume;
-                            exerciseData.maxVolumeWeight = weight;
-                            exerciseData.maxVolumeReps = reps;
-                            exerciseData.maxVolumeDate = date;
+                            if (volume > exerciseData.maxVolume) {
+                              exerciseData.maxVolume = volume;
+                              exerciseData.maxVolumeWeight = weight;
+                              exerciseData.maxVolumeReps = reps;
+                              exerciseData.maxVolumeDate = date;
+                            }
                           }
                         }
                       });

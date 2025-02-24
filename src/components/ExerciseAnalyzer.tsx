@@ -131,17 +131,20 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
       const setVolume = set.weight * set.reps;
       processedData[exercise].sets.push(set);
 
-      if (set.weight > processedData[exercise].maxWeight) {
-        processedData[exercise].maxWeight = set.weight;
-        processedData[exercise].maxWeightReps = set.reps;
-        processedData[exercise].maxWeightDate = set.date;
-      }
+      // Only consider sets with reps > 0 for PRs
+      if (set.reps > 0) {
+        if (set.weight > processedData[exercise].maxWeight) {
+          processedData[exercise].maxWeight = set.weight;
+          processedData[exercise].maxWeightReps = set.reps;
+          processedData[exercise].maxWeightDate = set.date;
+        }
 
-      if (setVolume > processedData[exercise].maxVolume) {
-        processedData[exercise].maxVolume = setVolume;
-        processedData[exercise].maxVolumeWeight = set.weight;
-        processedData[exercise].maxVolumeReps = set.reps;
-        processedData[exercise].maxVolumeDate = set.date;
+        if (setVolume > processedData[exercise].maxVolume) {
+          processedData[exercise].maxVolume = setVolume;
+          processedData[exercise].maxVolumeWeight = set.weight;
+          processedData[exercise].maxVolumeReps = set.reps;
+          processedData[exercise].maxVolumeDate = set.date;
+        }
       }
 
       if (date > processedData[exercise].lastUsed) {
@@ -289,7 +292,7 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                 // Find the set that would give the highest estimated 1RM
                 const maxEstimated1RM = exerciseData[selectedExercise].sets.reduce(
                   (max, set) => {
-                    if (set.reps > 36) return max; // Brzycki formula becomes unreliable beyond 36 reps
+                    if (set.reps === 0 || set.reps > 36) return max; // Skip failed sets and sets with too many reps
                     const estimated1RM = set.weight * (36 / (37 - set.reps));
                     return estimated1RM > max.value ? { value: estimated1RM, set } : max;
                   },
