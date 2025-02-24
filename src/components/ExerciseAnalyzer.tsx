@@ -66,6 +66,10 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
           maxVolumeWeight: 0,
           maxVolumeReps: 0,
           maxVolumeDate: "",
+          max1RM: 0,
+          max1RMWeight: 0,
+          max1RMReps: 0,
+          max1RMDate: "",
           lastUsed: new Date(0),
         };
       }
@@ -144,6 +148,17 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
           processedData[exercise].maxVolumeWeight = set.weight;
           processedData[exercise].maxVolumeReps = set.reps;
           processedData[exercise].maxVolumeDate = set.date;
+        }
+
+        // Calculate and track 1RM PR
+        if (set.reps <= 15) {
+          const estimated1RM = set.weight * (36 / (37 - set.reps));
+          if (estimated1RM > processedData[exercise].max1RM) {
+            processedData[exercise].max1RM = estimated1RM;
+            processedData[exercise].max1RMWeight = set.weight;
+            processedData[exercise].max1RMReps = set.reps;
+            processedData[exercise].max1RMDate = set.date;
+          }
         }
       }
 
@@ -292,7 +307,7 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                 // Find the set that would give the highest estimated 1RM
                 const maxEstimated1RM = exerciseData[selectedExercise].sets.reduce(
                   (max, set) => {
-                    if (set.reps === 0 || set.reps > 36) return max; // Skip failed sets and sets with too many reps
+                    if (set.reps === 0 || set.reps > 15) return max; // Skip failed sets and sets with too many reps
                     const estimated1RM = set.weight * (36 / (37 - set.reps));
                     return estimated1RM > max.value ? { value: estimated1RM, set } : max;
                   },
@@ -375,13 +390,14 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                     {sets.map((set, index) => {
                       const isWeightPR = set.date === exerciseData[selectedExercise].maxWeightDate && set.weight === exerciseData[selectedExercise].maxWeight && set.reps === exerciseData[selectedExercise].maxWeightReps;
                       const isVolumePR = set.date === exerciseData[selectedExercise].maxVolumeDate && set.weight === exerciseData[selectedExercise].maxVolumeWeight && set.reps === exerciseData[selectedExercise].maxVolumeReps;
+                      const is1RMPR = set.date === exerciseData[selectedExercise].max1RMDate && set.weight === exerciseData[selectedExercise].max1RMWeight && set.reps === exerciseData[selectedExercise].max1RMReps;
                       return (
                         <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
                           <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
                           <div className="font-semibold text-sm sm:text-base text-white">
                             {set.weight} kg × {set.reps}
                           </div>
-                          {(isWeightPR || isVolumePR) && (
+                          {(isWeightPR || isVolumePR || is1RMPR) && (
                             <div className="absolute top-1 right-1 flex gap-1">
                               {isWeightPR && (
                                 <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
@@ -391,6 +407,11 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                               {isVolumePR && (
                                 <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-md" title="Volume PR">
                                   V
+                                </span>
+                              )}
+                              {is1RMPR && (
+                                <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-md" title="1RM PR">
+                                  1RM
                                 </span>
                               )}
                             </div>

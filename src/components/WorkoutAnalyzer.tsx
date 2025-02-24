@@ -76,6 +76,68 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
     return result;
   }, [data]);
 
+  // Calculate max PRs for each exercise
+  const exercisePRs = useMemo(() => {
+    const prs: { [exercise: string]: { maxWeight: number; maxWeightReps: number; maxWeightDate: string; maxVolume: number; maxVolumeWeight: number; maxVolumeReps: number; maxVolumeDate: string; max1RM: number; max1RMWeight: number; max1RMReps: number; max1RMDate: string } } = {};
+
+    data.forEach((row) => {
+      const exercise = row["Exercise Name"];
+      const setOrder = row["Set Order"];
+      if (!exercise) return;
+      if (setOrder && setOrder.toString().includes("Rest Timer")) return;
+
+      if (!prs[exercise]) {
+        prs[exercise] = {
+          maxWeight: 0,
+          maxWeightReps: 0,
+          maxWeightDate: "",
+          maxVolume: 0,
+          maxVolumeWeight: 0,
+          maxVolumeReps: 0,
+          maxVolumeDate: "",
+          max1RM: 0,
+          max1RMWeight: 0,
+          max1RMReps: 0,
+          max1RMDate: "",
+        };
+      }
+
+      const weight = parseFloat(row["Weight"] || "0");
+      const reps = parseInt(row["Reps"] || "0");
+      const date = row["Date"] || "";
+      const volume = weight * reps;
+
+      // Only consider sets with reps > 0 for PRs
+      if (reps > 0) {
+        if (weight > prs[exercise].maxWeight) {
+          prs[exercise].maxWeight = weight;
+          prs[exercise].maxWeightReps = reps;
+          prs[exercise].maxWeightDate = date;
+        }
+
+        if (volume > prs[exercise].maxVolume) {
+          prs[exercise].maxVolume = volume;
+          prs[exercise].maxVolumeWeight = weight;
+          prs[exercise].maxVolumeReps = reps;
+          prs[exercise].maxVolumeDate = date;
+        }
+
+        // Calculate and track 1RM PR
+        if (reps <= 15) {
+          const estimated1RM = weight * (36 / (37 - reps));
+          if (estimated1RM > prs[exercise].max1RM) {
+            prs[exercise].max1RM = estimated1RM;
+            prs[exercise].max1RMWeight = weight;
+            prs[exercise].max1RMReps = reps;
+            prs[exercise].max1RMDate = date;
+          }
+        }
+      }
+    });
+
+    return prs;
+  }, [data]);
+
   const selectedWorkout = useMemo((): WorkoutData | null => {
     if (!selectedDate) return null;
 
@@ -143,45 +205,9 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
                 <div className="p-2 sm:p-4">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                     {sets.map((set, index) => {
-                      // Create a temporary exercise data structure to check PRs
-                      const exerciseData: { maxWeight: number; maxWeightReps: number; maxWeightDate: string; maxVolume: number; maxVolumeWeight: number; maxVolumeReps: number; maxVolumeDate: string } = {
-                        maxWeight: 0,
-                        maxWeightReps: 0,
-                        maxWeightDate: "",
-                        maxVolume: 0,
-                        maxVolumeWeight: 0,
-                        maxVolumeReps: 0,
-                        maxVolumeDate: "",
-                      };
-
-                      // Process all sets of this exercise to find PRs
-                      data.forEach((row) => {
-                        if (row["Exercise Name"] === exerciseName) {
-                          const weight = parseFloat(row["Weight"] || "0");
-                          const reps = parseInt(row["Reps"] || "0");
-                          const volume = weight * reps;
-                          const date = row["Date"] || "";
-
-                          // Only consider sets with reps > 0 for PRs
-                          if (reps > 0) {
-                            if (weight > exerciseData.maxWeight) {
-                              exerciseData.maxWeight = weight;
-                              exerciseData.maxWeightReps = reps;
-                              exerciseData.maxWeightDate = date;
-                            }
-
-                            if (volume > exerciseData.maxVolume) {
-                              exerciseData.maxVolume = volume;
-                              exerciseData.maxVolumeWeight = weight;
-                              exerciseData.maxVolumeReps = reps;
-                              exerciseData.maxVolumeDate = date;
-                            }
-                          }
-                        }
-                      });
-
-                      const isWeightPR = set.date === exerciseData.maxWeightDate && set.weight === exerciseData.maxWeight && set.reps === exerciseData.maxWeightReps;
-                      const isVolumePR = set.date === exerciseData.maxVolumeDate && set.weight === exerciseData.maxVolumeWeight && set.reps === exerciseData.maxVolumeReps;
+                      const isWeightPR = set.date === exercisePRs[exerciseName].maxWeightDate && set.weight === exercisePRs[exerciseName].maxWeight && set.reps === exercisePRs[exerciseName].maxWeightReps;
+                      const isVolumePR = set.date === exercisePRs[exerciseName].maxVolumeDate && set.weight === exercisePRs[exerciseName].maxVolumeWeight && set.reps === exercisePRs[exerciseName].maxVolumeReps;
+                      const is1RMPR = set.date === exercisePRs[exerciseName].max1RMDate && set.weight === exercisePRs[exerciseName].max1RMWeight && set.reps === exercisePRs[exerciseName].max1RMReps;
 
                       return (
                         <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
@@ -189,7 +215,7 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
                           <div className="font-semibold text-sm sm:text-base text-white">
                             {set.weight} kg × {set.reps}
                           </div>
-                          {(isWeightPR || isVolumePR) && (
+                          {(isWeightPR || isVolumePR || is1RMPR) && (
                             <div className="absolute top-1 right-1 flex gap-1">
                               {isWeightPR && (
                                 <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
@@ -199,6 +225,11 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
                               {isVolumePR && (
                                 <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-md" title="Volume PR">
                                   V
+                                </span>
+                              )}
+                              {is1RMPR && (
+                                <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-md" title="1RM PR">
+                                  1RM
                                 </span>
                               )}
                             </div>

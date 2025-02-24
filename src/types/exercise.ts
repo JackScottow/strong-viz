@@ -19,6 +19,10 @@ export interface ExerciseData {
     maxVolumeWeight: number;
     maxVolumeReps: number;
     maxVolumeDate: string;
+    max1RM: number;
+    max1RMWeight: number;
+    max1RMReps: number;
+    max1RMDate: string;
     lastUsed: Date;
   };
 }
