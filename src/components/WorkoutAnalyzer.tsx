@@ -142,14 +142,67 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
                 </div>
                 <div className="p-2 sm:p-4">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-                    {sets.map((set, index) => (
-                      <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg">
-                        <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
-                        <div className="font-semibold text-sm sm:text-base text-white">
-                          {set.weight} kg × {set.reps}
+                    {sets.map((set, index) => {
+                      // Create a temporary exercise data structure to check PRs
+                      const exerciseData: { maxWeight: number; maxWeightReps: number; maxWeightDate: string; maxVolume: number; maxVolumeWeight: number; maxVolumeReps: number; maxVolumeDate: string } = {
+                        maxWeight: 0,
+                        maxWeightReps: 0,
+                        maxWeightDate: "",
+                        maxVolume: 0,
+                        maxVolumeWeight: 0,
+                        maxVolumeReps: 0,
+                        maxVolumeDate: "",
+                      };
+
+                      // Process all sets of this exercise to find PRs
+                      data.forEach((row) => {
+                        if (row["Exercise Name"] === exerciseName) {
+                          const weight = parseFloat(row["Weight"] || "0");
+                          const reps = parseInt(row["Reps"] || "0");
+                          const volume = weight * reps;
+                          const date = row["Date"] || "";
+
+                          if (weight > exerciseData.maxWeight) {
+                            exerciseData.maxWeight = weight;
+                            exerciseData.maxWeightReps = reps;
+                            exerciseData.maxWeightDate = date;
+                          }
+
+                          if (volume > exerciseData.maxVolume) {
+                            exerciseData.maxVolume = volume;
+                            exerciseData.maxVolumeWeight = weight;
+                            exerciseData.maxVolumeReps = reps;
+                            exerciseData.maxVolumeDate = date;
+                          }
+                        }
+                      });
+
+                      const isWeightPR = set.date === exerciseData.maxWeightDate && set.weight === exerciseData.maxWeight && set.reps === exerciseData.maxWeightReps;
+                      const isVolumePR = set.date === exerciseData.maxVolumeDate && set.weight === exerciseData.maxVolumeWeight && set.reps === exerciseData.maxVolumeReps;
+
+                      return (
+                        <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
+                          <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
+                          <div className="font-semibold text-sm sm:text-base text-white">
+                            {set.weight} kg × {set.reps}
+                          </div>
+                          {(isWeightPR || isVolumePR) && (
+                            <div className="absolute top-1 right-1 flex gap-1">
+                              {isWeightPR && (
+                                <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
+                                  W
+                                </span>
+                              )}
+                              {isVolumePR && (
+                                <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-md" title="Volume PR">
+                                  V
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
