@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ExerciseData, ExerciseSet, StrongCSVRow } from "@/types/exercise";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, TooltipProps } from "recharts";
 import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
@@ -52,7 +52,9 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
 
     data.forEach((row) => {
       const exercise = row["Exercise Name"];
+      const setOrder = row["Set Order"];
       if (!exercise) return;
+      if (setOrder && setOrder.toString().includes("Rest Timer")) return;
 
       if (!processedData[exercise]) {
         processedData[exercise] = {
@@ -68,15 +70,61 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
         };
       }
 
-      const date = new Date(row["Date"]);
+      const date = new Date(row["Date"] || "");
+
+      // Enhanced weight handling
+      const weightStr = row["Weight"] || row["Weight (kg)"];
+      let weight = 0;
+
+      if (weightStr !== undefined && weightStr !== "" && weightStr !== '""') {
+        // Remove quotes and try direct number conversion
+        const cleanWeightStr = weightStr.toString().replace(/"/g, "");
+        weight = Number(cleanWeightStr);
+
+        // If that fails, try cleaning and parsing
+        if (isNaN(weight)) {
+          // Remove any non-numeric characters except dots and minus signs
+          const cleanWeight = cleanWeightStr.replace(/[^\d.-]/g, "");
+          weight = parseFloat(cleanWeight);
+
+          // If still NaN, try one more time with stricter cleaning
+          if (isNaN(weight)) {
+            const strictClean = cleanWeightStr.match(/[-]?\d+\.?\d*/);
+            weight = strictClean ? parseFloat(strictClean[0]) : 0;
+          }
+        }
+      }
+
+      // Enhanced reps handling
+      const repsStr = row["Reps"];
+      let reps = 0;
+
+      if (repsStr !== undefined && repsStr !== "" && repsStr !== '""') {
+        // Remove quotes and try direct number conversion
+        const cleanRepsStr = repsStr.toString().replace(/"/g, "");
+        reps = Number(cleanRepsStr);
+
+        // If that fails, try cleaning and parsing
+        if (isNaN(reps)) {
+          const cleanReps = cleanRepsStr.replace(/[^\d]/g, "");
+          reps = parseInt(cleanReps);
+
+          // If still NaN, try one more time with stricter cleaning
+          if (isNaN(reps)) {
+            const strictClean = cleanRepsStr.match(/\d+/);
+            reps = strictClean ? parseInt(strictClean[0]) : 0;
+          }
+        }
+      }
+
       const set: ExerciseSet = {
-        date: row["Date"],
-        workout: row["Workout Name"],
+        date: row["Date"] || "",
+        workout: row["Workout Name"] || "",
         exercise: exercise,
-        setNumber: parseInt(row["Set Order"] || "1"),
-        weight: parseFloat(row["Weight"] || "0"),
+        setNumber: parseInt((row["Set Order"] || "1").toString()) || 1,
+        weight: weight,
         unit: row["Weight Unit"] || "kg",
-        reps: parseInt(row["Reps"] || "0"),
+        reps: reps,
         duration: row["Duration"] || "",
       };
 
@@ -101,12 +149,8 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
       }
     });
 
-    console.log("Processed Exercise Data:", processedData);
     return processedData;
   }, [data]);
-
-  console.log("Raw Data:", data);
-  console.log("Available Exercises:", Object.keys(exerciseData));
 
   // Sort exercises by most recent use
   const sortedExercises = useMemo(() => {
@@ -115,8 +159,15 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
       .map(([name]) => name);
   }, [exerciseData]);
 
+  // Reset selected exercise if it doesn't exist in the current data
+  useEffect(() => {
+    if (selectedExercise && !exerciseData[selectedExercise]) {
+      onExerciseSelect("");
+    }
+  }, [selectedExercise, exerciseData, onExerciseSelect]);
+
   const chartData = useMemo(() => {
-    if (!selectedExercise) return [];
+    if (!selectedExercise || !exerciseData[selectedExercise]) return [];
 
     const exercise = exerciseData[selectedExercise];
     if (!exercise) return [];
@@ -151,7 +202,7 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
 
   // Group sets by date for the selected exercise
   const groupedSets = useMemo(() => {
-    if (!selectedExercise) return new Map<string, ExerciseSet[]>();
+    if (!selectedExercise || !exerciseData[selectedExercise]) return new Map<string, ExerciseSet[]>();
 
     const groups = new Map<string, ExerciseSet[]>();
     exerciseData[selectedExercise].sets.forEach((set) => {
@@ -162,6 +213,24 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
     // Convert to array and sort by date (most recent first)
     return new Map(Array.from(groups.entries()).sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime()));
   }, [selectedExercise, exerciseData]);
+
+  // If no exercise is selected or the selected exercise doesn't exist, show only the dropdown
+  if (!selectedExercise || !exerciseData[selectedExercise]) {
+    return (
+      <div className="p-2 sm:p-6">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
+          <select className="w-full sm:w-auto border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={selectedExercise} onChange={(e) => onExerciseSelect(e.target.value)}>
+            <option value="">Select Exercise</option>
+            {sortedExercises.map((exercise) => (
+              <option key={exercise} value={exercise}>
+                {exercise} ({new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">

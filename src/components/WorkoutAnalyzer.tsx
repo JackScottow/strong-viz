@@ -30,17 +30,16 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
   };
 
   const workoutData = useMemo(() => {
-    console.log("Raw data received:", data);
     const workouts = new Map<string, WorkoutData>();
 
     data.forEach((row) => {
       const date = row["Date"];
       const workoutName = row["Workout Name"];
       const exercise = row["Exercise Name"];
-
-      console.log("Processing row:", { date, workoutName, exercise });
+      const setOrder = row["Set Order"];
 
       if (!date || !workoutName || !exercise) return;
+      if (setOrder && setOrder.toString().includes("Rest Timer")) return;
 
       if (!workouts.has(date)) {
         workouts.set(date, {
@@ -74,7 +73,6 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
     });
 
     const result = Array.from(workouts.values()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    console.log("Processed workout data:", result);
     return result;
   }, [data]);
 

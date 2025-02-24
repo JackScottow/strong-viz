@@ -14,6 +14,20 @@ const CsvUploader = ({ onDataLoaded }: CsvUploaderProps) => {
       if (file) {
         Papa.parse(file, {
           header: true,
+          delimiter: ";",
+          transformHeader: (header: string) => {
+            const cleanHeader = header.replace(/"/g, "");
+            const headerMap: { [key: string]: string } = {
+              Date: "Date",
+              "Workout Name": "Workout Name",
+              "Exercise Name": "Exercise Name",
+              "Set Order": "Set Order",
+              "Weight (kg)": "Weight",
+              Reps: "Reps",
+              "Duration (sec)": "Duration",
+            };
+            return headerMap[cleanHeader] || cleanHeader;
+          },
           complete: (results) => {
             onDataLoaded(results.data as StrongCSVRow[]);
           },

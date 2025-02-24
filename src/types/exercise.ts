@@ -23,6 +23,9 @@ export interface ExerciseData {
   };
 }
 
+export type StrongAppVersion = "legacy" | "current";
+
+// Current version format
 export interface StrongCSVRow {
   Date: string;
   "Workout Name": string;
@@ -32,5 +35,18 @@ export interface StrongCSVRow {
   "Weight Unit": string;
   Reps: string;
   Duration: string;
-  [key: string]: string; // For any additional columns
+  [key: string]: string;
+}
+
+// Legacy version format
+export interface StrongCSVLegacyRow {
+  "Workout #": string;
+  Date: string;
+  "Exercise Name": string;
+  "Set Order": string;
+  Weight: string;
+  Reps: string;
+  "Weight Unit": string;
+  Duration: string;
+  [key: string]: string;
 }

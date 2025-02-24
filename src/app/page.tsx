@@ -1,51 +1,84 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import CsvUploader from "@/components/CsvUploader";
 import ExerciseAnalyzer from "@/components/ExerciseAnalyzer";
 import WorkoutAnalyzer from "@/components/WorkoutAnalyzer";
-import { StrongCSVRow } from "@/types/exercise";
+import { StrongCSVRow, StrongCSVLegacyRow } from "@/types/exercise";
 
 type Tab = "exercise" | "workout";
 
 export default function Home() {
-  const [data, setData] = useState<StrongCSVRow[]>([]);
+  const [data, setData] = useState<(StrongCSVRow | StrongCSVLegacyRow)[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>("exercise");
   const [selectedWorkoutDate, setSelectedWorkoutDate] = useState<Date | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<string>("");
 
-  // Set default selections when data is loaded
-  useEffect(() => {
-    if (data.length > 0) {
-      // Find the most recent workout date
-      const sortedDates = [...new Set(data.map((row) => row.Date))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+  // Process data using useMemo
+  const processedData = useMemo(() => {
+    if (data.length === 0) return [];
 
-      if (sortedDates.length > 0) {
-        const mostRecentDate = new Date(sortedDates[0]);
-        mostRecentDate.setHours(0, 0, 0, 0);
-        setSelectedWorkoutDate(mostRecentDate);
+    // Detect version based on first row structure
+    const isLegacy = "Workout #" in data[0];
+
+    return data.map((row) => {
+      if (isLegacy) {
+        const legacyRow = row as StrongCSVLegacyRow;
+        const processed = {
+          Date: legacyRow.Date,
+          "Workout Name": `Workout ${legacyRow["Workout #"]}`,
+          "Exercise Name": legacyRow["Exercise Name"],
+          "Set Order": legacyRow["Set Order"],
+          Weight: legacyRow.Weight,
+          "Weight Unit": legacyRow["Weight Unit"],
+          Reps: legacyRow.Reps,
+          Duration: legacyRow.Duration,
+        } as StrongCSVRow;
+        return processed;
       }
 
-      // Find the most recently used exercise
-      const exerciseDates = data.reduce((acc, row) => {
-        const date = new Date(row.Date);
-        const exercise = row["Exercise Name"];
-        if (!acc[exercise] || date > acc[exercise]) {
-          acc[exercise] = date;
-        }
-        return acc;
-      }, {} as Record<string, Date>);
-
-      const mostRecentExercise = Object.entries(exerciseDates).sort(([, a], [, b]) => b.getTime() - a.getTime())[0]?.[0];
-
-      if (mostRecentExercise) {
-        setSelectedExercise(mostRecentExercise);
-      }
-    }
+      // For current format, ensure Weight and Reps are preserved as-is
+      const currentRow = row as StrongCSVRow;
+      return currentRow;
+    });
   }, [data]);
 
+  // Memoize the sorted dates and exercises
+  const { sortedDates, mostRecentExercise } = useMemo(() => {
+    if (processedData.length === 0) {
+      return { sortedDates: [], mostRecentExercise: null };
+    }
+
+    const dates = [...new Set(processedData.map((row) => row.Date))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+    const exerciseDates = processedData.reduce((acc, row) => {
+      const date = new Date(row.Date);
+      const exercise = row["Exercise Name"];
+      if (!acc[exercise] || date > acc[exercise]) {
+        acc[exercise] = date;
+      }
+      return acc;
+    }, {} as Record<string, Date>);
+
+    const recentExercise = Object.entries(exerciseDates).sort(([, a], [, b]) => b.getTime() - a.getTime())[0]?.[0];
+
+    return { sortedDates: dates, mostRecentExercise: recentExercise };
+  }, [processedData]);
+
+  // Set default selections when data changes
+  useEffect(() => {
+    if (sortedDates.length > 0) {
+      const mostRecentDate = new Date(sortedDates[0]);
+      mostRecentDate.setHours(0, 0, 0, 0);
+      setSelectedWorkoutDate(mostRecentDate);
+    }
+
+    if (mostRecentExercise) {
+      setSelectedExercise(mostRecentExercise);
+    }
+  }, [sortedDates, mostRecentExercise]);
+
   const handleWorkoutClick = (date: string) => {
-    // Create date at start of day in local timezone to avoid time-of-day mismatches
     const newDate = new Date(date);
     newDate.setHours(0, 0, 0, 0);
     setSelectedWorkoutDate(newDate);
@@ -98,7 +131,7 @@ export default function Home() {
               </nav>
             </div>
 
-            <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700">{activeTab === "exercise" ? <ExerciseAnalyzer data={data} onWorkoutClick={handleWorkoutClick} selectedExercise={selectedExercise} onExerciseSelect={setSelectedExercise} /> : <WorkoutAnalyzer data={data} selectedDate={selectedWorkoutDate} onDateChange={setSelectedWorkoutDate} onExerciseClick={handleExerciseClick} />}</div>
+            <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700">{activeTab === "exercise" ? <ExerciseAnalyzer data={processedData} onWorkoutClick={handleWorkoutClick} selectedExercise={selectedExercise} onExerciseSelect={setSelectedExercise} /> : <WorkoutAnalyzer data={processedData} selectedDate={selectedWorkoutDate} onDateChange={setSelectedWorkoutDate} onExerciseClick={handleExerciseClick} />}</div>
           </div>
         )}
       </div>
