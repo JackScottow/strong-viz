@@ -50,6 +50,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSelect }: ExerciseAnalyzerProps) => {
   const [chartType, setChartType] = useState<"progression" | "volume">("progression");
+  const [sortType, setSortType] = useState<"recent" | "alphabetical">("recent");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const exerciseData: ExerciseData = useMemo(() => {
     const processedData: ExerciseData = {};
@@ -175,12 +177,18 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
     return processedData;
   }, [data]);
 
-  // Sort exercises by most recent use
-  const sortedExercises = useMemo(() => {
-    return Object.entries(exerciseData)
-      .sort(([, a], [, b]) => b.lastUsed.getTime() - a.lastUsed.getTime())
-      .map(([name]) => name);
-  }, [exerciseData]);
+  // Filter and sort exercises based on search query and sort type
+  const filteredAndSortedExercises = useMemo(() => {
+    // First filter by search query
+    const filtered = searchQuery ? Object.keys(exerciseData).filter((name) => name.toLowerCase().includes(searchQuery.toLowerCase())) : Object.keys(exerciseData);
+
+    // Then sort based on selected sort type
+    if (sortType === "alphabetical") {
+      return filtered.sort((a, b) => a.localeCompare(b));
+    } else {
+      return filtered.sort((a, b) => exerciseData[b].lastUsed.getTime() - exerciseData[a].lastUsed.getTime());
+    }
+  }, [exerciseData, sortType, searchQuery]);
 
   // Reset selected exercise if it doesn't exist in the current data
   useEffect(() => {
@@ -241,15 +249,29 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
   if (!selectedExercise || !exerciseData[selectedExercise]) {
     return (
       <div className="p-2 sm:p-6">
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
-          <select className="w-full sm:w-auto border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={selectedExercise} onChange={(e) => onExerciseSelect(e.target.value)}>
-            <option value="">Select Exercise</option>
-            {sortedExercises.map((exercise) => (
-              <option key={exercise} value={exercise}>
-                {exercise} ({new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col gap-2 sm:gap-4">
+          <input type="text" placeholder="Search exercises..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" />
+          <div className="flex items-center gap-2">
+            <div className="flex-grow">
+              <select className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={selectedExercise} onChange={(e) => onExerciseSelect(e.target.value)}>
+                <option value="">Select Exercise</option>
+                {filteredAndSortedExercises.map((exercise) => (
+                  <option key={exercise} value={exercise}>
+                    {exercise} {sortType === "recent" && `(${new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button onClick={() => setSortType("recent")} className={`px-2 py-1.5 rounded text-xs sm:text-sm min-w-[70px] text-center ${sortType === "recent" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+                Recent
+              </button>
+              <button onClick={() => setSortType("alphabetical")} className={`px-2 py-1.5 rounded text-xs sm:text-sm min-w-[70px] text-center ${sortType === "alphabetical" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+                A-Z
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -257,20 +279,36 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
 
   return (
     <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
-        <select className="w-full sm:w-auto border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={selectedExercise} onChange={(e) => onExerciseSelect(e.target.value)}>
-          <option value="">Select Exercise</option>
-          {sortedExercises.map((exercise) => (
-            <option key={exercise} value={exercise}>
-              {exercise} ({new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-col gap-2 sm:gap-4">
+        <input type="text" placeholder="Search exercises..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" />
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
+          <div className="flex items-center gap-2 flex-grow">
+            <div className="flex-grow">
+              <select className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={selectedExercise} onChange={(e) => onExerciseSelect(e.target.value)}>
+                <option value="">Select Exercise</option>
+                {filteredAndSortedExercises.map((exercise) => (
+                  <option key={exercise} value={exercise}>
+                    {exercise} {sortType === "recent" && `(${new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})`}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <select className="w-full sm:w-auto border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={chartType} onChange={(e) => setChartType(e.target.value as "progression" | "volume")}>
-          <option value="progression">Weight Progression</option>
-          <option value="volume">Volume Over Time</option>
-        </select>
+            <div className="flex items-center gap-1">
+              <button onClick={() => setSortType("recent")} className={`px-2 py-1.5 rounded text-xs sm:text-sm min-w-[70px] text-center ${sortType === "recent" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+                Recent
+              </button>
+              <button onClick={() => setSortType("alphabetical")} className={`px-2 py-1.5 rounded text-xs sm:text-sm min-w-[70px] text-center ${sortType === "alphabetical" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+                A-Z
+              </button>
+            </div>
+          </div>
+
+          <select className="w-full sm:w-auto border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={chartType} onChange={(e) => setChartType(e.target.value as "progression" | "volume")}>
+            <option value="progression">Weight Progression</option>
+            <option value="volume">Volume Over Time</option>
+          </select>
+        </div>
       </div>
 
       {selectedExercise && (

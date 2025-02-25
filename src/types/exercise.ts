@@ -40,6 +40,7 @@ export interface StrongCSVRow {
   "Weight Unit": string;
   Reps: string;
   Duration: string;
+  Notes: string;
   [key: string]: string;
 }
 
@@ -53,5 +54,6 @@ export interface StrongCSVLegacyRow {
   Reps: string;
   "Weight Unit": string;
   Duration: string;
+  Notes: string;
   [key: string]: string;
 }

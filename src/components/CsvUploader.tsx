@@ -31,6 +31,7 @@ const CsvUploader = ({ onDataLoaded, hasData }: CsvUploaderProps) => {
               "Weight (kg)": "Weight",
               Reps: "Reps",
               "Duration (sec)": "Duration",
+              Notes: "Notes",
             };
             return headerMap[cleanHeader] || cleanHeader;
           },
@@ -103,6 +104,7 @@ const CsvUploader = ({ onDataLoaded, hasData }: CsvUploaderProps) => {
                         "Weight (kg)": "Weight",
                         Reps: "Reps",
                         "Duration (sec)": "Duration",
+                        Notes: "Notes",
                       };
                       return headerMap[cleanHeader] || cleanHeader;
                     },

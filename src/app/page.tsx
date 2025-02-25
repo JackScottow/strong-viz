@@ -33,6 +33,7 @@ export default function Home() {
           "Weight Unit": legacyRow["Weight Unit"],
           Reps: legacyRow.Reps,
           Duration: legacyRow.Duration,
+          Notes: legacyRow.Notes || "",
         } as StrongCSVRow;
         return processed;
       }
