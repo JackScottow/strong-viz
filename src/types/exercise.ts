@@ -7,6 +7,7 @@ export interface ExerciseSet {
   unit: string;
   reps: number;
   duration: string;
+  notes: string;
 }
 
 export interface ExerciseData {

@@ -66,6 +66,7 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
         unit: row["Weight Unit"] || "kg",
         reps: parseInt(row["Reps"] || "0"),
         duration: row["Duration"] || "",
+        notes: row["Notes"] || "",
       };
 
       workout.exercises[exercise].push(set);
@@ -198,50 +199,56 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            {Object.entries(selectedWorkout.exercises).map(([exerciseName, sets]) => (
-              <div key={exerciseName} className="bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-                <div onClick={() => onExerciseClick(exerciseName)} className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-750 border-b border-gray-600 rounded-t-lg cursor-pointer hover:bg-gray-700 transition-colors group">
-                  <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-blue-400">{exerciseName}</h4>
-                </div>
-                <div className="p-2 sm:p-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-                    {sets.map((set, index) => {
-                      const isWeightPR = set.date === exercisePRs[exerciseName].maxWeightDate && set.weight === exercisePRs[exerciseName].maxWeight && set.reps === exercisePRs[exerciseName].maxWeightReps;
-                      const isVolumePR = set.date === exercisePRs[exerciseName].maxVolumeDate && set.weight === exercisePRs[exerciseName].maxVolumeWeight && set.reps === exercisePRs[exerciseName].maxVolumeReps;
-                      const is1RMPR = set.date === exercisePRs[exerciseName].max1RMDate && set.weight === exercisePRs[exerciseName].max1RMWeight && set.reps === exercisePRs[exerciseName].max1RMReps;
+            {Object.entries(selectedWorkout.exercises).map(([exerciseName, sets]) => {
+              // Collect all unique notes for this exercise
+              const exerciseNotes = [...new Set(sets.map((set) => set.notes).filter(Boolean))];
 
-                      return (
-                        <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
-                          <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
-                          <div className="font-semibold text-sm sm:text-base text-white">
-                            {set.weight} kg × {set.reps}
-                          </div>
-                          {(isWeightPR || isVolumePR || is1RMPR) && (
-                            <div className="absolute top-1 right-1 flex gap-1">
-                              {isWeightPR && (
-                                <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
-                                  W
-                                </span>
-                              )}
-                              {isVolumePR && (
-                                <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-md" title="Volume PR">
-                                  V
-                                </span>
-                              )}
-                              {is1RMPR && (
-                                <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-md" title="1RM PR">
-                                  1RM
-                                </span>
-                              )}
+              return (
+                <div key={exerciseName} className="bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                  <div onClick={() => onExerciseClick(exerciseName)} className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-750 border-b border-gray-600 rounded-t-lg cursor-pointer hover:bg-gray-700 transition-colors group">
+                    <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-blue-400">{exerciseName}</h4>
+                    {exerciseNotes.length > 0 && <div className="text-xs text-gray-400 mt-1 italic">{exerciseNotes.join(" • ")}</div>}
+                  </div>
+                  <div className="p-2 sm:p-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+                      {sets.map((set, index) => {
+                        const isWeightPR = set.date === exercisePRs[exerciseName].maxWeightDate && set.weight === exercisePRs[exerciseName].maxWeight && set.reps === exercisePRs[exerciseName].maxWeightReps;
+                        const isVolumePR = set.date === exercisePRs[exerciseName].maxVolumeDate && set.weight === exercisePRs[exerciseName].maxVolumeWeight && set.reps === exercisePRs[exerciseName].maxVolumeReps;
+                        const is1RMPR = set.date === exercisePRs[exerciseName].max1RMDate && set.weight === exercisePRs[exerciseName].max1RMWeight && set.reps === exercisePRs[exerciseName].max1RMReps;
+
+                        return (
+                          <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
+                            <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
+                            <div className="font-semibold text-sm sm:text-base text-white">
+                              {set.weight} kg × {set.reps}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                            {(isWeightPR || isVolumePR || is1RMPR) && (
+                              <div className="absolute top-1 right-1 flex gap-1">
+                                {isWeightPR && (
+                                  <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
+                                    W
+                                  </span>
+                                )}
+                                {isVolumePR && (
+                                  <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-md" title="Volume PR">
+                                    V
+                                  </span>
+                                )}
+                                {is1RMPR && (
+                                  <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-md" title="1RM PR">
+                                    1RM
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

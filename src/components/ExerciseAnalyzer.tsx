@@ -24,6 +24,9 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
   // Sort sets by set number to maintain order
   const sortedSets = [...sets].sort((a, b) => a.setNumber - b.setNumber);
 
+  // Collect all unique notes for this date
+  const dateNotes = [...new Set(sets.map((set) => set.notes).filter(Boolean))];
+
   return (
     <div className="bg-gray-800 p-3 border border-gray-700 rounded-lg shadow-lg">
       <p className="font-semibold text-white mb-2">
@@ -33,6 +36,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
           year: "numeric",
         })}
       </p>
+      {dateNotes.length > 0 && <p className="text-xs text-gray-400 mb-2 italic">{dateNotes.join(" • ")}</p>}
       <div className="space-y-1">
         {sortedSets.map((set, index) => (
           <p key={index} className="text-gray-300">
@@ -130,6 +134,7 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
         unit: row["Weight Unit"] || "kg",
         reps: reps,
         duration: row["Duration"] || "",
+        notes: row["Notes"] || "",
       };
 
       const setVolume = set.weight * set.reps;
@@ -373,56 +378,62 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
 
           <div className="space-y-3 sm:space-y-4">
             <h3 className="text-lg sm:text-xl font-semibold text-white">Set History</h3>
-            {Array.from(groupedSets.entries()).map(([date, sets]) => (
-              <div key={date} className="bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-                <div onClick={() => onWorkoutClick(date)} className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-750 border-b border-gray-600 rounded-t-lg cursor-pointer hover:bg-gray-700 transition-colors group">
-                  <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-blue-400">
-                    {new Date(date).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </h4>
-                </div>
-                <div className="p-2 sm:p-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-                    {sets.map((set, index) => {
-                      const isWeightPR = set.date === exerciseData[selectedExercise].maxWeightDate && set.weight === exerciseData[selectedExercise].maxWeight && set.reps === exerciseData[selectedExercise].maxWeightReps;
-                      const isVolumePR = set.date === exerciseData[selectedExercise].maxVolumeDate && set.weight === exerciseData[selectedExercise].maxVolumeWeight && set.reps === exerciseData[selectedExercise].maxVolumeReps;
-                      const is1RMPR = set.date === exerciseData[selectedExercise].max1RMDate && set.weight === exerciseData[selectedExercise].max1RMWeight && set.reps === exerciseData[selectedExercise].max1RMReps;
-                      return (
-                        <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
-                          <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
-                          <div className="font-semibold text-sm sm:text-base text-white">
-                            {set.weight} kg × {set.reps}
-                          </div>
-                          {(isWeightPR || isVolumePR || is1RMPR) && (
-                            <div className="absolute top-1 right-1 flex gap-1">
-                              {isWeightPR && (
-                                <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
-                                  W
-                                </span>
-                              )}
-                              {isVolumePR && (
-                                <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-md" title="Volume PR">
-                                  V
-                                </span>
-                              )}
-                              {is1RMPR && (
-                                <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-md" title="1RM PR">
-                                  1RM
-                                </span>
-                              )}
+            {Array.from(groupedSets.entries()).map(([date, sets]) => {
+              // Collect all unique notes for this date
+              const dateNotes = [...new Set(sets.map((set) => set.notes).filter(Boolean))];
+
+              return (
+                <div key={date} className="bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                  <div onClick={() => onWorkoutClick(date)} className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-750 border-b border-gray-600 rounded-t-lg cursor-pointer hover:bg-gray-700 transition-colors group">
+                    <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-blue-400">
+                      {new Date(date).toLocaleDateString("en-US", {
+                        weekday: "long",
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </h4>
+                    {dateNotes.length > 0 && <div className="text-xs text-gray-400 mt-1 italic">{dateNotes.join(" • ")}</div>}
+                  </div>
+                  <div className="p-2 sm:p-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+                      {sets.map((set, index) => {
+                        const isWeightPR = set.date === exerciseData[selectedExercise].maxWeightDate && set.weight === exerciseData[selectedExercise].maxWeight && set.reps === exerciseData[selectedExercise].maxWeightReps;
+                        const isVolumePR = set.date === exerciseData[selectedExercise].maxVolumeDate && set.weight === exerciseData[selectedExercise].maxVolumeWeight && set.reps === exerciseData[selectedExercise].maxVolumeReps;
+                        const is1RMPR = set.date === exerciseData[selectedExercise].max1RMDate && set.weight === exerciseData[selectedExercise].max1RMWeight && set.reps === exerciseData[selectedExercise].max1RMReps;
+                        return (
+                          <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
+                            <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
+                            <div className="font-semibold text-sm sm:text-base text-white">
+                              {set.weight} kg × {set.reps}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                            {(isWeightPR || isVolumePR || is1RMPR) && (
+                              <div className="absolute top-1 right-1 flex gap-1">
+                                {isWeightPR && (
+                                  <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
+                                    W
+                                  </span>
+                                )}
+                                {isVolumePR && (
+                                  <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-md" title="Volume PR">
+                                    V
+                                  </span>
+                                )}
+                                {is1RMPR && (
+                                  <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-md" title="1RM PR">
+                                    1RM
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
