@@ -29,6 +29,23 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
     });
   };
 
+  // Helper function to format seconds to hours and minutes
+  const formatDuration = (seconds: string | undefined): string => {
+    if (!seconds) return "";
+
+    const totalSeconds = parseInt(seconds);
+    if (isNaN(totalSeconds)) return seconds;
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m`;
+    }
+  };
+
   const workoutData = useMemo(() => {
     const workouts = new Map<string, WorkoutData>();
 
@@ -41,13 +58,23 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
       if (!date || !workoutName || !exercise) return;
       if (setOrder && setOrder.toString().includes("Rest Timer")) return;
 
+      // Handle different duration formats
+      let duration = row["Workout Duration"];
+      if (!duration) {
+        // Check if duration is in seconds format
+        const durationInSeconds = row["Duration"] || row["Duration (sec)"];
+        if (durationInSeconds) {
+          duration = formatDuration(durationInSeconds);
+        }
+      }
+
       if (!workouts.has(date)) {
         workouts.set(date, {
           date,
           name: workoutName,
           exercises: {},
           totalVolume: 0,
-          duration: row["Workout Duration"] || "",
+          duration: duration || "",
         });
       }
 
@@ -155,6 +182,7 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
 
     return workout || null;
   }, [workoutData, selectedDate]);
+  console.log(workoutData);
 
   return (
     <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
