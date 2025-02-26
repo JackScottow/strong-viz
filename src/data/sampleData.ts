@@ -56,6 +56,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: workoutIndex > 8 && i === 2 && Math.random() < 0.2 ? "3" : reps.toString(), // Occasional failed last set after week 3
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
         // Overhead Press with slower progression
@@ -72,6 +73,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: (6 - Math.floor(i / 2)).toString(), // 6,6,5 rep scheme
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
         // Incline Bench Press
@@ -87,6 +89,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: "8",
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
         // Lateral Raises
@@ -100,6 +103,7 @@ export const sampleData: StrongCSVRow[] = [
           Reps: (15 - Math.floor(i / 2)).toString(), // 15,15,14 reps
           Duration: "",
           "Workout Duration": workoutDuration,
+          Notes: "",
         })),
       ];
     }),
@@ -123,6 +127,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: (8 - i).toString(), // 8,7,6 reps
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
         // Barbell Row progression
@@ -139,6 +144,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: "8",
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
         // Face Pulls (high rep)
@@ -152,6 +158,7 @@ export const sampleData: StrongCSVRow[] = [
           Reps: (20 - i * 2).toString(), // 20,18,16 reps
           Duration: "",
           "Workout Duration": workoutDuration,
+          Notes: "",
         })),
         // Bicep Curls with small progression
         ...Array.from({ length: 3 }, (_, i) => {
@@ -166,6 +173,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: (12 - i).toString(), // 12,11,10 reps
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
       ];
@@ -195,6 +203,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: reps.toString(),
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
         // Romanian Deadlift
@@ -210,6 +219,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: "8",
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
         // Leg Press (higher rep range)
@@ -225,6 +235,7 @@ export const sampleData: StrongCSVRow[] = [
             Reps: (12 - Math.floor(i / 2)).toString(), // 12,12,11 reps
             Duration: "",
             "Workout Duration": workoutDuration,
+            Notes: "",
           };
         }),
         // Calf Raises
@@ -238,6 +249,7 @@ export const sampleData: StrongCSVRow[] = [
           Reps: "15",
           Duration: "",
           "Workout Duration": workoutDuration,
+          Notes: "",
         })),
       ];
     }),
