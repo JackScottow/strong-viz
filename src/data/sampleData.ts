@@ -30,7 +30,14 @@ const generateProgressiveWeight = (startWeight: number, increment: number, worko
 // Helper to generate random workout duration between 45-75 minutes
 const generateWorkoutDuration = () => {
   const minutes = Math.floor(45 + Math.random() * 31); // Random duration between 45-75 minutes
-  return `${minutes}:00`;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${remainingMinutes}m`;
+  } else {
+    return `${minutes}m`;
+  }
 };
 
 export const sampleData: StrongCSVRow[] = [
