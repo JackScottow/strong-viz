@@ -15,9 +15,14 @@ interface ChartDataPoint {
   weight: number;
   volume: number;
   sets: ExerciseSet[];
+  totalVolume: number;
 }
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+interface CustomTooltipProps extends TooltipProps<ValueType, NameType> {
+  chartType: "progression" | "volume";
+}
+
+const CustomTooltip = ({ active, payload, label, chartType }: CustomTooltipProps) => {
   if (!active || !payload || !payload[0]) return null;
 
   const sets: ExerciseSet[] = (payload[0].payload as ChartDataPoint).sets;
@@ -27,9 +32,18 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
   // Collect all unique notes for this date
   const dateNotes = [...new Set(sets.map((set) => set.notes).filter(Boolean))];
 
+  // Find the top weight set
+  const topWeightSet = sets.reduce((max, set) => (set.weight > max.weight ? set : max), sets[0]);
+
+  // Calculate total volume for all sets
+  const totalVolume = sets.reduce((sum, set) => sum + set.weight * set.reps, 0);
+
+  // Use the appropriate top set based on chart type
+  const topSet = chartType === "volume" ? topWeightSet : topWeightSet;
+
   return (
     <div className="bg-gray-800 p-3 border border-gray-700 rounded-lg shadow-lg">
-      <p className="font-semibold text-white mb-2">
+      <p className="font-semibold text-white mb-2 text-center">
         {new Date(label).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "2-digit",
@@ -37,9 +51,20 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
         })}
       </p>
       {dateNotes.length > 0 && <p className="text-xs text-gray-400 mb-2 italic">{dateNotes.join(" • ")}</p>}
+      <div className="bg-blue-500/10 border border-blue-500/20 rounded px-2 py-1 mb-2">
+        {chartType === "volume" ? (
+          <>
+            <p className="text-sm text-white font-medium text-center">Total Volume: {totalVolume} kg</p>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-white font-medium text-center">Top Weight: {topSet.weight} kg</p>
+          </>
+        )}
+      </div>
       <div className="space-y-1">
         {sortedSets.map((set, index) => (
-          <p key={index} className="text-gray-300">
+          <p key={index} className={`${set.weight === topSet.weight && set.reps === topSet.reps && chartType !== "volume" ? "font-semibold text-blue-400" : "text-gray-300"}`}>
             Set {set.setNumber}: {set.weight} kg × {set.reps} reps
           </p>
         ))}
@@ -214,16 +239,17 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
     const data: ChartDataPoint[] = Array.from(dateGroups.entries())
       .map(([date, sets]) => {
         // Find the top weight set for this date
-        const topSet = sets.reduce((max, set) => (set.weight > max.weight ? set : max), sets[0]);
+        const topWeightSet = sets.reduce((max, set) => (set.weight > max.weight ? set : max), sets[0]);
 
-        // Calculate total volume for this date
-        const volume = sets.reduce((total, set) => total + set.weight * set.reps, 0);
+        // Calculate total volume for all sets on this date
+        const totalVolume = sets.reduce((sum, set) => sum + set.weight * set.reps, 0);
 
         return {
           date,
-          weight: topSet.weight,
-          volume,
+          weight: topWeightSet.weight,
+          volume: totalVolume,
           sets: sets,
+          totalVolume: totalVolume,
         };
       })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -384,8 +410,8 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
                   <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} tickFormatter={(date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })} minTickGap={30} />
-                  <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} domain={["dataMin - 5", "dataMax + 5"]} tickFormatter={(value) => `${value}kg`} />
-                  <Tooltip content={<CustomTooltip />} />
+                  <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} domain={["auto", "dataMax"]} padding={{ top: 0, bottom: 10 }} tickCount={6} tickFormatter={(value) => `${value}kg`} />
+                  <Tooltip content={<CustomTooltip chartType={chartType} />} />
                   <Legend
                     wrapperStyle={{
                       color: "#9CA3AF",
@@ -399,8 +425,8 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
                   <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} tickFormatter={(date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })} minTickGap={30} />
-                  <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} tickFormatter={(value) => `${value}kg`} />
-                  <Tooltip content={<CustomTooltip />} />
+                  <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} domain={["auto", "auto"]} padding={{ top: 0, bottom: 10 }} tickCount={6} tickFormatter={(value) => `${value}kg`} />
+                  <Tooltip content={<CustomTooltip chartType={chartType} />} />
                   <Legend
                     wrapperStyle={{
                       color: "#9CA3AF",
