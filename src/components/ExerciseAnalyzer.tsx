@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { ExerciseData, ExerciseSet, StrongCSVRow } from "@/types/exercise";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, TooltipProps } from "recharts";
 import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
@@ -77,6 +77,22 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
   const [chartType, setChartType] = useState<"progression" | "volume">("progression");
   const [sortType, setSortType] = useState<"recent" | "alphabetical">("recent");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const exerciseData: ExerciseData = useMemo(() => {
     const processedData: ExerciseData = {};
@@ -275,28 +291,63 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
   if (!selectedExercise || !exerciseData[selectedExercise]) {
     return (
       <div className="p-2 sm:p-6">
-        <div className="flex flex-col gap-2 sm:gap-4">
-          <input type="text" placeholder="Search exercises..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" />
-          <div className="flex items-center gap-2">
-            <div className="flex-grow">
-              <select className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={selectedExercise} onChange={(e) => onExerciseSelect(e.target.value)}>
-                <option value="">Select Exercise</option>
-                {filteredAndSortedExercises.map((exercise) => (
-                  <option key={exercise} value={exercise}>
-                    {exercise} {sortType === "recent" && `(${new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})`}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 text-center">
+            <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Exercise Analysis</h2>
+            <p className="text-gray-400 mb-4">Select an exercise to view progression charts and history</p>
 
-            <div className="flex items-center gap-1">
-              <button onClick={() => setSortType("recent")} className={`px-2 py-1.5 rounded text-xs sm:text-sm min-w-[70px] text-center ${sortType === "recent" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
-                Recent
-              </button>
-              <button onClick={() => setSortType("alphabetical")} className={`px-2 py-1.5 rounded text-xs sm:text-sm min-w-[70px] text-center ${sortType === "alphabetical" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
-                A-Z
-              </button>
+            <div className="flex flex-row gap-2 items-stretch">
+              <div className="relative flex-grow" ref={dropdownRef}>
+                <div className="flex items-stretch">
+                  <input type="text" placeholder="Search or select exercise..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsDropdownOpen(true)} className="w-full border rounded-l p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" />
+                  <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="bg-gray-700 border border-l-0 border-gray-600 rounded-r px-3 text-gray-300 hover:bg-gray-600 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+                {isDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {filteredAndSortedExercises.length > 0 ? (
+                      filteredAndSortedExercises.map((exercise) => (
+                        <div
+                          key={exercise}
+                          className="p-2 hover:bg-gray-700 cursor-pointer text-white text-sm"
+                          onClick={() => {
+                            onExerciseSelect(exercise);
+                            setSearchQuery("");
+                            setIsDropdownOpen(false);
+                          }}>
+                          {exercise} {sortType === "recent" && `(${new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})`}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-2 text-gray-400 text-sm">No exercises found</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button onClick={() => setSortType("recent")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "recent" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+                  Recent
+                </button>
+                <button onClick={() => setSortType("alphabetical")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "alphabetical" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+                  A-Z
+                </button>
+              </div>
             </div>
+          </div>
+
+          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+            <p className="text-gray-400 text-sm">
+              <span className="inline-block bg-blue-500/20 text-blue-400 p-1 rounded mr-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+              Select an exercise to view weight progression, volume charts, and set history
+            </p>
           </div>
         </div>
       </div>
@@ -306,34 +357,56 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
   return (
     <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-2 sm:gap-4">
-        <input type="text" placeholder="Search exercises..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" />
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
-          <div className="flex items-center gap-2 flex-grow">
-            <div className="flex-grow">
-              <select className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={selectedExercise} onChange={(e) => onExerciseSelect(e.target.value)}>
-                <option value="">Select Exercise</option>
-                {filteredAndSortedExercises.map((exercise) => (
-                  <option key={exercise} value={exercise}>
-                    {exercise} {sortType === "recent" && `(${new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})`}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button onClick={() => setSortType("recent")} className={`px-2 py-1.5 rounded text-xs sm:text-sm min-w-[70px] text-center ${sortType === "recent" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
-                Recent
-              </button>
-              <button onClick={() => setSortType("alphabetical")} className={`px-2 py-1.5 rounded text-xs sm:text-sm min-w-[70px] text-center ${sortType === "alphabetical" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
-                A-Z
+        <div className="flex flex-row gap-2 items-stretch">
+          <div className="flex-grow relative" ref={dropdownRef}>
+            <div className="flex items-stretch">
+              <input type="text" placeholder="Search exercises..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsDropdownOpen(true)} className="w-full border rounded-l p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" />
+              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="bg-gray-700 border border-l-0 border-gray-600 rounded-r px-3 text-gray-300 hover:bg-gray-600 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
             </div>
+            {isDropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-auto">
+                {filteredAndSortedExercises.length > 0 ? (
+                  filteredAndSortedExercises.map((exercise) => (
+                    <div
+                      key={exercise}
+                      className={`p-2 hover:bg-gray-700 cursor-pointer text-sm ${exercise === selectedExercise ? "bg-blue-500/20 text-blue-400" : "text-white"}`}
+                      onClick={() => {
+                        onExerciseSelect(exercise);
+                        setSearchQuery("");
+                        setIsDropdownOpen(false);
+                      }}>
+                      {exercise} {sortType === "recent" && `(${new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})`}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-2 text-gray-400 text-sm">No exercises found</div>
+                )}
+              </div>
+            )}
           </div>
 
-          <select className="w-full sm:w-auto border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={chartType} onChange={(e) => setChartType(e.target.value as "progression" | "volume")}>
-            <option value="progression">Weight Progression</option>
-            <option value="volume">Volume Over Time</option>
-          </select>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setSortType("recent")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "recent" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+              Recent
+            </button>
+            <button onClick={() => setSortType("alphabetical")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "alphabetical" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+              A-Z
+            </button>
+          </div>
+        </div>
+
+        <select className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={chartType} onChange={(e) => setChartType(e.target.value as "progression" | "volume")}>
+          <option value="progression">Weight Progression</option>
+          <option value="volume">Volume Over Time</option>
+        </select>
+
+        {/* Add a prominent display of the selected exercise */}
+        <div className="bg-gray-700 border border-gray-600 rounded-lg p-3 flex items-center justify-between">
+          <h2 className="text-lg sm:text-xl font-bold text-white mx-auto">{selectedExercise}</h2>
         </div>
       </div>
 
