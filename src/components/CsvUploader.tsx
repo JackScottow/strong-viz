@@ -62,7 +62,7 @@ const CsvUploader = ({ onDataLoaded, hasData }: CsvUploaderProps) => {
     <div className="w-full">
       {!isExpanded && hasData && (
         <div className="flex justify-center">
-          <button onClick={() => setIsExpanded(true)} className="h-10 flex items-center gap-2 px-4 text-sm font-medium text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700">
+          <button onClick={() => setIsExpanded(true)} className="h-10 flex items-center gap-2 px-4 text-sm font-medium text-white transition-colors bg-primary rounded-md hover:bg-primary-dark">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
@@ -118,7 +118,7 @@ const CsvUploader = ({ onDataLoaded, hasData }: CsvUploaderProps) => {
               className="hidden"
               accept=".csv"
             />
-            <button onClick={() => fileInputRef.current?.click()} className="w-full h-10 px-4 text-sm font-medium text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center gap-2">
+            <button onClick={() => fileInputRef.current?.click()} className="w-full h-10 px-4 text-sm font-medium text-white transition-colors bg-primary rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary flex items-center justify-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" />
               </svg>
@@ -129,7 +129,7 @@ const CsvUploader = ({ onDataLoaded, hasData }: CsvUploaderProps) => {
               <span className="text-sm text-gray-400">or</span>
               <div className="h-px bg-gray-700 flex-1"></div>
             </div>
-            <button onClick={handleLoadDemoData} className="w-full h-10 px-4 text-sm font-medium text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center gap-2">
+            <button onClick={handleLoadDemoData} className="w-full h-10 px-4 text-sm font-medium text-white transition-colors bg-primary rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary flex items-center justify-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
               </svg>
@@ -139,7 +139,7 @@ const CsvUploader = ({ onDataLoaded, hasData }: CsvUploaderProps) => {
 
           {/* Desktop version */}
           <div className="hidden sm:block">
-            <div {...getRootProps()} className={`p-6 border-2 border-dashed rounded-lg ${isDragActive ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}>
+            <div {...getRootProps()} className={`p-6 border-2 border-dashed rounded-lg ${isDragActive ? "border-primary bg-primary/5 dark:bg-primary/10" : "border-gray-300 dark:border-border"}`}>
               <input {...getInputProps()} />
               <div className="text-center">
                 <svg className="w-12 h-12 mx-auto text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
@@ -152,16 +152,14 @@ const CsvUploader = ({ onDataLoaded, hasData }: CsvUploaderProps) => {
               </div>
             </div>
 
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="mt-4 flex flex-col items-center">
+              <div className="flex items-center justify-center gap-2 mb-3">
                 <div className="h-px bg-gray-700 w-12"></div>
                 <span className="text-sm text-gray-400">or</span>
                 <div className="h-px bg-gray-700 w-12"></div>
               </div>
-            </div>
 
-            <div className="text-center">
-              <button onClick={handleLoadDemoData} className="h-10 inline-flex items-center px-4 text-sm font-medium text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" title="Load sample workout data to explore the app's features">
+              <button onClick={handleLoadDemoData} className="inline-flex items-center justify-center py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                 </svg>

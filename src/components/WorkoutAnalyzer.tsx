@@ -187,13 +187,13 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
   return (
     <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
       <h2 className="text-lg sm:text-xl font-semibold text-white">Select Workout</h2>
-      <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2 bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-700">
+      <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2 bg-secondary p-3 sm:p-4 rounded-lg border border-border">
         {workoutData.map((workout) => (
           <button
             key={workout.date}
             onClick={() => onDateChange(new Date(workout.date))}
             className={`w-full min-h-[5.5rem] p-3 sm:p-4 rounded-lg border transition-colors text-left
-              ${selectedWorkout?.date === workout.date ? "bg-blue-500/20 border-blue-500 text-blue-400" : "bg-gray-700 border-gray-600 text-gray-200 hover:border-blue-500 hover:text-blue-400"}`}>
+              ${selectedWorkout?.date === workout.date ? "bg-primary/20 border-primary text-primary-light" : "bg-secondary text-gray-200 border-border hover:border-primary hover:text-primary-light"}`}>
             <div className="h-full flex flex-col justify-between">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
@@ -212,17 +212,17 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
         <div className="mt-8 sm:mt-12 space-y-4 sm:space-y-6">
           <h2 className="text-xl sm:text-2xl font-bold text-white">{formatDate(selectedWorkout.date)}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+            <div className="p-3 sm:p-4 bg-secondary border border-border rounded-lg shadow-lg">
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Total Volume</h3>
-              <p className="text-xl sm:text-2xl font-bold text-blue-400">{Math.round(selectedWorkout.totalVolume)} kg</p>
+              <p className="text-xl sm:text-2xl font-bold text-primary-light">{Math.round(selectedWorkout.totalVolume)} kg</p>
             </div>
-            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+            <div className="p-3 sm:p-4 bg-secondary border border-border rounded-lg shadow-lg">
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Exercises</h3>
-              <p className="text-xl sm:text-2xl font-bold text-blue-400">{Object.keys(selectedWorkout.exercises).length}</p>
+              <p className="text-xl sm:text-2xl font-bold text-primary-light">{Object.keys(selectedWorkout.exercises).length}</p>
             </div>
-            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+            <div className="p-3 sm:p-4 bg-secondary border border-border rounded-lg shadow-lg">
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Duration</h3>
-              <p className="text-xl sm:text-2xl font-bold text-blue-400">{selectedWorkout.duration}</p>
+              <p className="text-xl sm:text-2xl font-bold text-primary-light">{selectedWorkout.duration}</p>
             </div>
           </div>
 
@@ -232,9 +232,9 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
               const exerciseNotes = [...new Set(sets.map((set) => set.notes).filter(Boolean))];
 
               return (
-                <div key={exerciseName} className="bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-                  <div onClick={() => onExerciseClick(exerciseName)} className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-750 border-b border-gray-600 rounded-t-lg cursor-pointer hover:bg-gray-700 transition-colors group">
-                    <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-blue-400">{exerciseName}</h4>
+                <div key={exerciseName} className="bg-secondary border border-border rounded-lg shadow-lg">
+                  <div onClick={() => onExerciseClick(exerciseName)} className="px-3 sm:px-4 py-2 sm:py-3 bg-secondary/80 border-b border-border rounded-t-lg cursor-pointer hover:bg-secondary transition-colors group">
+                    <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-primary-light">{exerciseName}</h4>
                     {exerciseNotes.length > 0 && <div className="text-xs text-gray-400 mt-1 italic">{exerciseNotes.join(" • ")}</div>}
                   </div>
                   <div className="p-2 sm:p-4">
@@ -245,13 +245,13 @@ const WorkoutAnalyzer = ({ data, selectedDate, onDateChange, onExerciseClick }: 
                         const is1RMPR = set.date === exercisePRs[exerciseName].max1RMDate && set.weight === exercisePRs[exerciseName].max1RMWeight && set.reps === exercisePRs[exerciseName].max1RMReps;
 
                         return (
-                          <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
+                          <div key={index} className="p-2 sm:p-3 bg-card rounded-lg relative">
                             <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
                             <div className="font-semibold text-sm sm:text-base text-white">
                               {set.weight} kg × {set.reps}
                             </div>
                             {(isWeightPR || isVolumePR || is1RMPR) && (
-                              <div className="absolute top-1 right-1 flex gap-1">
+                              <div className="absolute top-0 bottom-0 right-1 flex gap-1 items-center h-full">
                                 {isWeightPR && (
                                   <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
                                     W

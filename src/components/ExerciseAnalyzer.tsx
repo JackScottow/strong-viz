@@ -42,7 +42,7 @@ const CustomTooltip = ({ active, payload, label, chartType }: CustomTooltipProps
   const topSet = chartType === "volume" ? topWeightSet : topWeightSet;
 
   return (
-    <div className="bg-gray-800 p-3 border border-gray-700 rounded-lg shadow-lg">
+    <div className="bg-card p-3 border border-border rounded-lg shadow-lg">
       <p className="font-semibold text-white mb-2 text-center">
         {new Date(label).toLocaleDateString("en-GB", {
           day: "2-digit",
@@ -51,7 +51,7 @@ const CustomTooltip = ({ active, payload, label, chartType }: CustomTooltipProps
         })}
       </p>
       {dateNotes.length > 0 && <p className="text-xs text-gray-400 mb-2 italic">{dateNotes.join(" • ")}</p>}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded px-2 py-1 mb-2">
+      <div className="bg-primary/10 border border-primary/20 rounded px-2 py-1 mb-2">
         {chartType === "volume" ? (
           <>
             <p className="text-sm text-white font-medium text-center">Total Volume: {totalVolume} kg</p>
@@ -64,7 +64,7 @@ const CustomTooltip = ({ active, payload, label, chartType }: CustomTooltipProps
       </div>
       <div className="space-y-1">
         {sortedSets.map((set, index) => (
-          <p key={index} className={`${set.weight === topSet.weight && set.reps === topSet.reps && chartType !== "volume" ? "font-semibold text-blue-400" : "text-gray-300"}`}>
+          <p key={index} className={`${set.weight === topSet.weight && set.reps === topSet.reps && chartType !== "volume" ? "font-semibold text-primary-light" : "text-gray-300"}`}>
             Set {set.setNumber}: {set.weight} kg × {set.reps} reps
           </p>
         ))}
@@ -290,90 +290,24 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
   // If no exercise is selected or the selected exercise doesn't exist, show only the dropdown
   if (!selectedExercise || !exerciseData[selectedExercise]) {
     return (
-      <div className="p-2 sm:p-6">
-        <div className="flex flex-col gap-4 sm:gap-6">
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 text-center">
-            <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Exercise Analysis</h2>
-            <p className="text-gray-400 mb-4">Select an exercise to view progression charts and history</p>
-
-            <div className="flex flex-row gap-2 items-stretch">
-              <div className="relative flex-grow" ref={dropdownRef}>
-                <div className="flex items-stretch">
-                  <input type="text" placeholder="Search or select exercise..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsDropdownOpen(true)} className="w-full border rounded-l p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" />
-                  <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="bg-gray-700 border border-l-0 border-gray-600 rounded-r px-3 text-gray-300 hover:bg-gray-600 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
-                {isDropdownOpen && (
-                  <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {filteredAndSortedExercises.length > 0 ? (
-                      filteredAndSortedExercises.map((exercise) => (
-                        <div
-                          key={exercise}
-                          className="p-2 hover:bg-gray-700 cursor-pointer text-white text-sm"
-                          onClick={() => {
-                            onExerciseSelect(exercise);
-                            setSearchQuery("");
-                            setIsDropdownOpen(false);
-                          }}>
-                          {exercise} {sortType === "recent" && `(${new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})`}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-2 text-gray-400 text-sm">No exercises found</div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1">
-                <button onClick={() => setSortType("recent")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "recent" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
-                  Recent
-                </button>
-                <button onClick={() => setSortType("alphabetical")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "alphabetical" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
-                  A-Z
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
-            <p className="text-gray-400 text-sm">
-              <span className="inline-block bg-blue-500/20 text-blue-400 p-1 rounded mr-1">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </span>
-              Select an exercise to view weight progression, volume charts, and set history
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-2 sm:gap-4">
-        <div className="flex flex-row gap-2 items-stretch">
-          <div className="flex-grow relative" ref={dropdownRef}>
+      <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="flex flex-col gap-2 sm:gap-4">
+          <div className="relative">
             <div className="flex items-stretch">
-              <input type="text" placeholder="Search exercises..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsDropdownOpen(true)} className="w-full border rounded-l p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" />
-              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="bg-gray-700 border border-l-0 border-gray-600 rounded-r px-3 text-gray-300 hover:bg-gray-600 flex items-center justify-center">
+              <input type="text" placeholder="Search or select exercise..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsDropdownOpen(true)} className="w-full border rounded-l p-2 bg-secondary text-white border-border focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm sm:text-base" />
+              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="bg-secondary border border-l-0 border-border rounded-r px-3 text-gray-300 hover:bg-secondary/80 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
             </div>
             {isDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
                 {filteredAndSortedExercises.length > 0 ? (
                   filteredAndSortedExercises.map((exercise) => (
                     <div
                       key={exercise}
-                      className={`p-2 hover:bg-gray-700 cursor-pointer text-sm ${exercise === selectedExercise ? "bg-blue-500/20 text-blue-400" : "text-white"}`}
+                      className={`p-2 hover:bg-secondary cursor-pointer text-sm ${exercise === selectedExercise ? "bg-primary/20 text-primary-light" : "text-white"}`}
                       onClick={() => {
                         onExerciseSelect(exercise);
                         setSearchQuery("");
@@ -390,22 +324,76 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
           </div>
 
           <div className="flex items-center gap-1">
-            <button onClick={() => setSortType("recent")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "recent" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+            <button onClick={() => setSortType("recent")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "recent" ? "bg-primary text-white" : "bg-secondary text-gray-300 border border-border hover:bg-secondary/80"}`}>
               Recent
             </button>
-            <button onClick={() => setSortType("alphabetical")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "alphabetical" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"}`}>
+            <button onClick={() => setSortType("alphabetical")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "alphabetical" ? "bg-primary text-white" : "bg-secondary text-gray-300 border border-border hover:bg-secondary/80"}`}>
               A-Z
             </button>
           </div>
         </div>
 
-        <select className="w-full border rounded p-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base" value={chartType} onChange={(e) => setChartType(e.target.value as "progression" | "volume")}>
-          <option value="progression">Weight Progression</option>
-          <option value="volume">Volume Over Time</option>
-        </select>
+        <div className="bg-card border border-border rounded-lg p-4 text-center">
+          <p className="text-gray-400 text-sm">
+            <span className="inline-block bg-primary/20 text-primary-light p-1 rounded mr-1">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+            Select an exercise to view weight progression, volume charts, and set history
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-2 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-2 sm:gap-4">
+        <div className="flex flex-row gap-2 items-stretch">
+          <div className="flex-grow relative" ref={dropdownRef}>
+            <div className="flex items-stretch">
+              <input type="text" placeholder="Search exercises..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsDropdownOpen(true)} className="w-full border rounded-l p-2 bg-secondary text-white border-border focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm sm:text-base" />
+              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="bg-secondary border border-l-0 border-border rounded-r px-3 text-gray-300 hover:bg-secondary/80 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+            {isDropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                {filteredAndSortedExercises.length > 0 ? (
+                  filteredAndSortedExercises.map((exercise) => (
+                    <div
+                      key={exercise}
+                      className={`p-2 hover:bg-secondary cursor-pointer text-sm ${exercise === selectedExercise ? "bg-primary/20 text-primary-light" : "text-white"}`}
+                      onClick={() => {
+                        onExerciseSelect(exercise);
+                        setSearchQuery("");
+                        setIsDropdownOpen(false);
+                      }}>
+                      {exercise} {sortType === "recent" && `(${new Date(exerciseData[exercise].lastUsed).toLocaleDateString()})`}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-2 text-gray-400 text-sm">No exercises found</div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button onClick={() => setSortType("recent")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "recent" ? "bg-primary text-white" : "bg-secondary text-gray-300 border border-border hover:bg-secondary/80"}`}>
+              Recent
+            </button>
+            <button onClick={() => setSortType("alphabetical")} className={`px-2 py-2 rounded text-xs sm:text-sm min-w-[70px] text-center h-full ${sortType === "alphabetical" ? "bg-primary text-white" : "bg-secondary text-gray-300 border border-border hover:bg-secondary/80"}`}>
+              A-Z
+            </button>
+          </div>
+        </div>
 
         {/* Add a prominent display of the selected exercise */}
-        <div className="bg-gray-700 border border-gray-600 rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-secondary border border-border rounded-lg p-3 flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-bold text-white mx-auto">{selectedExercise}</h2>
         </div>
       </div>
@@ -413,13 +401,13 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
       {selectedExercise && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+            <div className="p-3 sm:p-4 bg-secondary border border-border rounded-lg shadow-lg">
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Max Weight</h3>
-              <p className="text-xl sm:text-2xl font-bold text-blue-400">
+              <p className="text-xl sm:text-2xl font-bold text-primary-light">
                 {exerciseData[selectedExercise].maxWeight} kg × {exerciseData[selectedExercise].maxWeightReps} reps
               </p>
               {exerciseData[selectedExercise].maxWeightDate && (
-                <button onClick={() => onWorkoutClick(exerciseData[selectedExercise].maxWeightDate)} className="text-sm text-gray-400 hover:text-blue-400 transition-colors mt-1">
+                <button onClick={() => onWorkoutClick(exerciseData[selectedExercise].maxWeightDate)} className="text-sm text-gray-400 hover:text-primary-light transition-colors mt-1">
                   {new Date(exerciseData[selectedExercise].maxWeightDate).toLocaleDateString("en-GB", {
                     day: "2-digit",
                     month: "2-digit",
@@ -428,13 +416,13 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                 </button>
               )}
             </div>
-            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+            <div className="p-3 sm:p-4 bg-secondary border border-border rounded-lg shadow-lg">
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Max Volume (Single Set)</h3>
-              <p className="text-xl sm:text-2xl font-bold text-blue-400">
+              <p className="text-xl sm:text-2xl font-bold text-primary-light">
                 {exerciseData[selectedExercise].maxVolume} kg ({exerciseData[selectedExercise].maxVolumeWeight} kg × {exerciseData[selectedExercise].maxVolumeReps} reps)
               </p>
               {exerciseData[selectedExercise].maxVolumeDate && (
-                <button onClick={() => onWorkoutClick(exerciseData[selectedExercise].maxVolumeDate)} className="text-sm text-gray-400 hover:text-blue-400 transition-colors mt-1">
+                <button onClick={() => onWorkoutClick(exerciseData[selectedExercise].maxVolumeDate)} className="text-sm text-gray-400 hover:text-primary-light transition-colors mt-1">
                   {new Date(exerciseData[selectedExercise].maxVolumeDate).toLocaleDateString("en-GB", {
                     day: "2-digit",
                     month: "2-digit",
@@ -443,7 +431,7 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                 </button>
               )}
             </div>
-            <div className="p-3 sm:p-4 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+            <div className="p-3 sm:p-4 bg-secondary border border-border rounded-lg shadow-lg">
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-gray-200">Estimated 1RM</h3>
               {(() => {
                 // Find the set that would give the highest estimated 1RM
@@ -456,15 +444,15 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                   { value: 0, set: null as ExerciseSet | null }
                 );
 
-                if (!maxEstimated1RM.set) return <p className="text-xl sm:text-2xl font-bold text-blue-400">N/A</p>;
+                if (!maxEstimated1RM.set) return <p className="text-xl sm:text-2xl font-bold text-primary-light">N/A</p>;
 
                 return (
                   <>
-                    <p className="text-xl sm:text-2xl font-bold text-blue-400">{Math.round(maxEstimated1RM.value)} kg</p>
+                    <p className="text-xl sm:text-2xl font-bold text-primary-light">{Math.round(maxEstimated1RM.value)} kg</p>
                     <p className="text-sm text-gray-400">
                       Based on {maxEstimated1RM.set.weight} kg × {maxEstimated1RM.set.reps} reps
                     </p>
-                    <button onClick={() => onWorkoutClick(maxEstimated1RM.set!.date)} className="text-sm text-gray-400 hover:text-blue-400 transition-colors mt-1">
+                    <button onClick={() => onWorkoutClick(maxEstimated1RM.set!.date)} className="text-sm text-gray-400 hover:text-primary-light transition-colors mt-1">
                       {new Date(maxEstimated1RM.set.date).toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "2-digit",
@@ -477,40 +465,49 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
             </div>
           </div>
 
-          <div className="h-[300px] sm:h-[400px] w-full bg-gray-700 p-2 sm:p-4 border border-gray-600 rounded-lg shadow-lg">
-            <ResponsiveContainer width="100%" height="100%">
-              {chartType === "progression" ? (
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
-                  <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} tickFormatter={(date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })} minTickGap={30} />
-                  <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} domain={["auto", "dataMax"]} padding={{ top: 0, bottom: 10 }} tickCount={6} tickFormatter={(value) => `${value}kg`} />
-                  <Tooltip content={<CustomTooltip chartType={chartType} />} />
-                  <Legend
-                    wrapperStyle={{
-                      color: "#9CA3AF",
-                      fontSize: "12px",
-                      paddingTop: "8px",
-                    }}
-                  />
-                  <Line type="monotone" dataKey="weight" stroke="#60A5FA" strokeWidth={2} name="Weight (kg)" dot={{ fill: "#60A5FA", stroke: "#60A5FA", r: 3 }} activeDot={{ r: 5, fill: "#2563EB" }} />
-                </LineChart>
-              ) : (
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
-                  <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} tickFormatter={(date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })} minTickGap={30} />
-                  <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} domain={["auto", "auto"]} padding={{ top: 0, bottom: 10 }} tickCount={6} tickFormatter={(value) => `${value}kg`} />
-                  <Tooltip content={<CustomTooltip chartType={chartType} />} />
-                  <Legend
-                    wrapperStyle={{
-                      color: "#9CA3AF",
-                      fontSize: "12px",
-                      paddingTop: "8px",
-                    }}
-                  />
-                  <Bar dataKey="volume" fill="#60A5FA" name="Total Volume (kg)" />
-                </BarChart>
-              )}
-            </ResponsiveContainer>
+          <div className="bg-secondary p-2 sm:p-4 border border-border rounded-lg shadow-lg">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-200">Progress Chart</h3>
+              <select className="border rounded p-1 sm:p-2 bg-card text-white border-border focus:border-primary focus:ring-2 focus:ring-primary/20 text-xs sm:text-sm" value={chartType} onChange={(e) => setChartType(e.target.value as "progression" | "volume")}>
+                <option value="progression">Weight Progression</option>
+                <option value="volume">Volume Over Time</option>
+              </select>
+            </div>
+            <div className="h-[300px] sm:h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {chartType === "progression" ? (
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
+                    <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} tickFormatter={(date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })} minTickGap={30} />
+                    <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} domain={["auto", "dataMax"]} padding={{ top: 0, bottom: 10 }} tickCount={6} tickFormatter={(value) => `${value}kg`} />
+                    <Tooltip content={<CustomTooltip chartType={chartType} />} />
+                    <Legend
+                      wrapperStyle={{
+                        color: "#9CA3AF",
+                        fontSize: "12px",
+                        paddingTop: "8px",
+                      }}
+                    />
+                    <Line type="monotone" dataKey="weight" stroke="#a855f7" strokeWidth={2} name="Weight (kg)" dot={{ fill: "#a855f7", stroke: "#a855f7", r: 3 }} activeDot={{ r: 5, fill: "#7e22ce" }} />
+                  </LineChart>
+                ) : (
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
+                    <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} tickFormatter={(date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })} minTickGap={30} />
+                    <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: "12px" }} domain={["auto", "auto"]} padding={{ top: 0, bottom: 10 }} tickCount={6} tickFormatter={(value) => `${value}kg`} />
+                    <Tooltip content={<CustomTooltip chartType={chartType} />} />
+                    <Legend
+                      wrapperStyle={{
+                        color: "#9CA3AF",
+                        fontSize: "12px",
+                        paddingTop: "8px",
+                      }}
+                    />
+                    <Bar dataKey="volume" fill="#a855f7" name="Total Volume (kg)" />
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
+            </div>
           </div>
 
           <div className="space-y-3 sm:space-y-4">
@@ -520,9 +517,9 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
               const dateNotes = [...new Set(sets.map((set) => set.notes).filter(Boolean))];
 
               return (
-                <div key={date} className="bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-                  <div onClick={() => onWorkoutClick(date)} className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-750 border-b border-gray-600 rounded-t-lg cursor-pointer hover:bg-gray-700 transition-colors group">
-                    <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-blue-400">
+                <div key={date} className="bg-secondary border border-border rounded-lg shadow-lg">
+                  <div onClick={() => onWorkoutClick(date)} className="px-3 sm:px-4 py-2 sm:py-3 bg-secondary/80 border-b border-border rounded-t-lg cursor-pointer hover:bg-secondary transition-colors group">
+                    <h4 className="font-semibold text-sm sm:text-base text-white group-hover:text-primary-light">
                       {new Date(date).toLocaleDateString("en-US", {
                         weekday: "long",
                         month: "long",
@@ -539,13 +536,13 @@ const ExerciseAnalyzer = ({ data, onWorkoutClick, selectedExercise, onExerciseSe
                         const isVolumePR = set.date === exerciseData[selectedExercise].maxVolumeDate && set.weight === exerciseData[selectedExercise].maxVolumeWeight && set.reps === exerciseData[selectedExercise].maxVolumeReps;
                         const is1RMPR = set.date === exerciseData[selectedExercise].max1RMDate && set.weight === exerciseData[selectedExercise].max1RMWeight && set.reps === exerciseData[selectedExercise].max1RMReps;
                         return (
-                          <div key={index} className="p-2 sm:p-3 bg-gray-800 rounded-lg relative">
+                          <div key={index} className="p-2 sm:p-3 bg-card rounded-lg relative">
                             <div className="text-xs sm:text-sm text-gray-400">Set {set.setNumber}</div>
                             <div className="font-semibold text-sm sm:text-base text-white">
                               {set.weight} kg × {set.reps}
                             </div>
                             {(isWeightPR || isVolumePR || is1RMPR) && (
-                              <div className="absolute top-1 right-1 flex gap-1">
+                              <div className="absolute top-0 bottom-0 right-1 flex gap-1 items-center h-full">
                                 {isWeightPR && (
                                   <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-md" title="Weight PR">
                                     W
